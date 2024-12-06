@@ -73,6 +73,27 @@ struct ResultRelation {
     int32_t roleId;
 };
 
+inline bool operator==(const ResultRelation& lhs, const ResultRelation& rhs) {
+  return lhs.titleId == rhs.titleId &&
+         (std::memcmp(lhs.title, rhs.title, sizeof(lhs.title)) == 0) &&
+         (std::memcmp(lhs.imdbIndex, rhs.imdbIndex, sizeof(lhs.imdbIndex)) == 0) &&
+         lhs.kindId == rhs.kindId &&
+         lhs.productionYear == rhs.productionYear &&
+         lhs.imdbId == rhs.imdbId &&
+         (std::memcmp(lhs.phoneticCode, rhs.phoneticCode, sizeof(lhs.phoneticCode)) == 0) &&
+         lhs.episodeOfId == rhs.episodeOfId &&
+         lhs.seasonNr == rhs.seasonNr &&
+         lhs.episodeNr == rhs.episodeNr &&
+         (std::memcmp(lhs.seriesYears, rhs.seriesYears, sizeof(lhs.seriesYears)) == 0) &&
+         (std::memcmp(lhs.md5sum, rhs.md5sum, sizeof(lhs.md5sum)) == 0) &&
+         lhs.castInfoId == rhs.castInfoId &&
+         lhs.personId == rhs.personId &&
+         lhs.personRoleId == rhs.personRoleId &&
+         (std::memcmp(lhs.note, rhs.note, sizeof(lhs.note)) == 0) &&
+         lhs.nrOrder == rhs.nrOrder &&
+         lhs.roleId == rhs.roleId;
+}
+
 [[nodiscard]] inline std::string titleRelationToString(const TitleRelation& relation) {
     std::ostringstream oss;
     oss<< relation.titleId << ","

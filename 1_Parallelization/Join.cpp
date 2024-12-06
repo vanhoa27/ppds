@@ -19,6 +19,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 #include <omp.h>
+#include <atomic>
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
@@ -26,9 +27,10 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
 
     // TODO: Improve on the nested loop join
     for (const auto& castTuple : castRelation) {
+        #pragma omp parallel for
         for (const auto& titleTuple : titleRelation) {
             if (castTuple.movieId == titleTuple.titleId) {
-                resultTuples.push_back(createResultTuple(castTuple, titleTuple));
+                resultTuples.emplace_back(createResultTuple(castTuple, titleTuple));
             }
         }
     }
@@ -50,4 +52,45 @@ TEST(ParallelizationTest, TestJoiningTuples) {
     std::cout << "Timer: " << timer << std::endl;
     std::cout << "Result size: " << resultTuples.size() << std::endl;
     std::cout << "\n\n";
+}
+
+
+//==--------------------------------------------------------------------==//
+//==------------------------- CORRECTNESS TEST --------------------------==//
+//==--------------------------------------------------------------------==//
+// TODO: move tests into own directory
+
+std::vector<ResultRelation> testNestedLoopJoin(const std::vector<CastRelation>& leftRelation, const std::vector<TitleRelation>& rightRelation) {
+    std::vector<ResultRelation> result;
+    for (const auto &l : leftRelation) {
+        for (const auto &r : rightRelation) {
+            if (l.movieId == r.titleId) {
+                result.emplace_back(createResultTuple(l, r));
+            }
+        }
+    }
+    return result;
+}
+
+TEST(ParallelizationTest, TestCorrectness) {
+    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"));
+    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"));
+
+    auto resultTuples = performJoin(leftRelation, rightRelation,8 );
+    auto testTuples = testNestedLoopJoin(leftRelation, rightRelation);
+
+    // if size mismatch -> direct error
+    ASSERT_EQ(resultTuples.size(), testTuples.size()) << "Size mismatch!";
+
+    // sort to ensure comparison
+    std::sort(resultTuples.begin(), resultTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
+        return lhs.movieId < rhs.movieId;
+    });
+    std::sort(testTuples.begin(), testTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
+        return lhs.movieId < rhs.movieId;
+    });
+
+    EXPECT_EQ(resultTuples, testTuples) << "The advanced join result does not match the simple join result.";
+
+    std::cout << "Everything is ok.\n";
 }
