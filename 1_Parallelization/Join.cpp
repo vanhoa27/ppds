@@ -21,19 +21,39 @@
 #include <omp.h>
 #include <atomic>
 
-std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
+std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
+                                        const std::vector<TitleRelation> &titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
 
-    // TODO: Improve on the nested loop join
-    for (const auto& castTuple : castRelation) {
-        #pragma omp parallel for
-        for (const auto& titleTuple : titleRelation) {
-            if (castTuple.movieId == titleTuple.titleId) {
+    const std::vector<CastRelation> &buildRelation = castRelation;
+    const std::vector<TitleRelation> &probeRelation = titleRelation;
+
+    std::unordered_map<unsigned int, std::vector<CastRelation> > hashTable;
+
+#pragma omp parallel for
+    for (size_t i = 0; i < buildRelation.size(); ++i) {
+        const auto &castTuple = buildRelation[i];
+#pragma omp critical
+        {
+            hashTable[castTuple.movieId].push_back(castTuple);
+        }
+    }
+
+    for (size_t i = 0; i < probeRelation.size(); ++i) {
+        const auto &titleTuple = probeRelation[i];
+        unsigned int titleId = titleTuple.titleId;
+
+        auto it = hashTable.find(titleId);
+        if (it != hashTable.end()) {
+            for (const auto &castTuple: it->second) {
                 resultTuples.emplace_back(createResultTuple(castTuple, titleTuple));
             }
         }
     }
+
+    // TODO: Improve on the nested loop join
+
     return resultTuples;
 }
 
@@ -76,7 +96,7 @@ TEST(ParallelizationTest, TestCorrectness) {
     const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"));
     const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"));
 
-    auto resultTuples = performJoin(leftRelation, rightRelation,8 );
+    auto resultTuples = performJoin(leftRelation, rightRelation,1);
     auto testTuples = testNestedLoopJoin(leftRelation, rightRelation);
 
     // if size mismatch -> direct error
