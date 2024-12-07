@@ -49,6 +49,14 @@ if(NOT googletest_POPULATED)
 endif()
 FetchContent_MakeAvailable(googletest)
 
+FetchContent_Declare(TBB
+        GIT_REPOSITORY "https://github.com/oneapi-src/oneTBB.git"
+        GIT_TAG "master"
+        GIT_SHALLOW ON
+        CMAKE_ARGS "-DTBB_TEST:BOOL=OFF -DTBB_EXAMPLES:BOOL=OFF -DTBB_BENCH:BOOL=OFF -DTBB_BUILD:BOOL=ON -DTBB_FIND_PACKAGE:BOOL=OFF -DTBB_FUZZ_TESTING:BOOL=OFF -DTBB_INSTALL:BOOL=ON"
+        OVERRIDE_FIND_PACKAGE
+)
+
 # Define the shared library
 add_library(1_Parallelization SHARED Join.cpp)
 
