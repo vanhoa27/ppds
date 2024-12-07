@@ -104,14 +104,33 @@ TEST(NestedLoopTest, TestCorrectness) {
     ASSERT_EQ(resultTuples.size(), testTuples.size()) << "Size mismatch!";
 
     // sort to ensure comparison
-    std::sort(resultTuples.begin(), resultTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
-        return lhs.movieId < rhs.movieId;
-    });
-    std::sort(testTuples.begin(), testTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
-        return lhs.movieId < rhs.movieId;
-    });
+    // std::sort(resultTuples.begin(), resultTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
+    //     return lhs.movieId < rhs.movieId;
+    // });
+    // std::sort(testTuples.begin(), testTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
+    //     return lhs.movieId < rhs.movieId;
+    // });
+    std::set resultSet(resultTuples.begin(), resultTuples.end());
+    std::set testSet(testTuples.begin(), testTuples.end());
 
     EXPECT_EQ(resultTuples, testTuples) << "The advanced join result does not match the simple join result.";
 
     std::cout << "Everything is ok.\n";
+}
+
+bool operator<(const ResultRelation& lhs, const ResultRelation& rhs) {
+    if (lhs.movieId != rhs.movieId)
+        return lhs.movieId < rhs.movieId;
+    if (lhs.titleId != rhs.titleId)
+        return lhs.titleId < rhs.titleId;
+    int titleComparison = std::strcmp(lhs.title, rhs.title);
+    if (titleComparison != 0)
+        return titleComparison < 0;
+    if (lhs.productionYear != rhs.productionYear)
+        return lhs.productionYear < rhs.productionYear;
+    if (lhs.imdbId != rhs.imdbId)
+        return lhs.imdbId < rhs.imdbId;
+    if (lhs.kindId != rhs.kindId)
+        return lhs.kindId < rhs.kindId;
+    return lhs.nrOrder < rhs.nrOrder;
 }

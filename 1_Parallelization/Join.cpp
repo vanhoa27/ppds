@@ -20,21 +20,22 @@
 #include <gtest/gtest.h>
 #include <omp.h>
 #include <atomic>
+#include <numeric>
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
+    resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
 
     const std::vector<CastRelation> &buildRelation = castRelation;
     const std::vector<TitleRelation> &probeRelation = titleRelation;
 
-    std::unordered_map<unsigned int, std::vector<CastRelation> > hashTable;
+    std::unordered_map<unsigned int, std::vector<CastRelation>> hashTable;
+    hashTable.reserve(buildRelation.size());
 
-#pragma omp parallel for
     for (size_t i = 0; i < buildRelation.size(); ++i) {
         const auto &castTuple = buildRelation[i];
-#pragma omp critical
         {
             hashTable[castTuple.movieId].push_back(castTuple);
         }
@@ -52,10 +53,9 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
         }
     }
 
-    // TODO: Improve on the nested loop join
-
     return resultTuples;
 }
+
 
 TEST(ParallelizationTest, TestJoiningTuples) {
     std::cout << "Test reading data from a file.\n";
@@ -96,7 +96,7 @@ TEST(ParallelizationTest, TestCorrectness) {
     const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"));
     const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"));
 
-    auto resultTuples = performJoin(leftRelation, rightRelation,1);
+    auto resultTuples = performJoin(leftRelation, rightRelation,8);
     auto testTuples = testNestedLoopJoin(leftRelation, rightRelation);
 
     // if size mismatch -> direct error
@@ -104,13 +104,38 @@ TEST(ParallelizationTest, TestCorrectness) {
 
     // sort to ensure comparison
     std::sort(resultTuples.begin(), resultTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
-        return lhs.movieId < rhs.movieId;
+        return std::tie(lhs.movieId, lhs.castInfoId, lhs.titleId) < std::tie(rhs.movieId, rhs.castInfoId, rhs.titleId);
     });
     std::sort(testTuples.begin(), testTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
-        return lhs.movieId < rhs.movieId;
+        return std::tie(lhs.movieId, lhs.castInfoId, lhs.titleId) < std::tie(rhs.movieId, rhs.castInfoId, rhs.titleId);
     });
 
     EXPECT_EQ(resultTuples, testTuples) << "The advanced join result does not match the simple join result.";
 
     std::cout << "Everything is ok.\n";
+}
+
+
+//==--------------------------------------------------------------------==//
+//==------------------------- BENCHMARK TESTS --------------------------==//
+//==--------------------------------------------------------------------==//
+
+TEST(ParallelizationTest, TestJoiningTuplesMultipleRuns) {
+    constexpr int numRuns = 20;
+    Timer timer("Parallelized Join execute");
+
+    std::cout << "Test reading data from a file.\n";
+    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"), 10000);
+    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"), 10000);
+
+    timer.start();
+
+    for (int i = 0; i < numRuns; ++i) {
+        auto resultTuples = performJoin(leftRelation, rightRelation, 8);
+    }
+
+    timer.pause();
+
+    double totalTime = timer.getPrintTime(); // Get overall time in milliseconds
+    std::cout << "Total time for " << numRuns << " joins: " << totalTime << " ms" << std::endl;
 }
