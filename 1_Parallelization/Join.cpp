@@ -21,6 +21,40 @@
 #include <omp.h>
 #include <atomic>
 #include <numeric>
+#include <tbb/concurrent_hash_map.h>
+
+// std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
+//                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
+//     omp_set_num_threads(numThreads);
+//     std::vector<ResultRelation> resultTuples;
+//     resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
+//
+//     const std::vector<CastRelation> &buildRelation = castRelation;
+//     const std::vector<TitleRelation> &probeRelation = titleRelation;
+//
+//     std::unordered_map<uint32_t, std::vector<CastRelation>> hashTable;
+//     hashTable.reserve(buildRelation.size());
+//
+//     for (size_t i = 0; i < buildRelation.size(); ++i) {
+//         const auto &castTuple = buildRelation[i];
+//         hashTable[castTuple.movieId].push_back(castTuple);
+//     }
+//
+//     for (size_t i = 0; i < probeRelation.size(); ++i) {
+//         const auto &titleTuple = probeRelation[i];
+//         uint32_t titleId = titleTuple.titleId;
+//
+//         auto it = hashTable.find(titleId);
+//         if (it != hashTable.end()) {
+//             for (const auto &castTuple: it->second) {
+//                 resultTuples.emplace_back(createResultTuple(castTuple, titleTuple));
+//             }
+//         }
+//     }
+//
+//     return resultTuples;
+// }
+
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
@@ -31,23 +65,23 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
     const std::vector<CastRelation> &buildRelation = castRelation;
     const std::vector<TitleRelation> &probeRelation = titleRelation;
 
-    std::unordered_map<unsigned int, std::vector<CastRelation>> hashTable;
-    hashTable.reserve(buildRelation.size());
+    tbb::concurrent_hash_map<uint32_t, std::vector<CastRelation>> hashTable;
 
+    #pragma omp parallel for
     for (size_t i = 0; i < buildRelation.size(); ++i) {
         const auto &castTuple = buildRelation[i];
-        {
-            hashTable[castTuple.movieId].push_back(castTuple);
-        }
+        tbb::concurrent_hash_map<uint32_t, std::vector<CastRelation>>::accessor acc;
+        hashTable.insert(acc, castTuple.movieId);
+        acc->second.push_back(castTuple);
     }
 
     for (size_t i = 0; i < probeRelation.size(); ++i) {
         const auto &titleTuple = probeRelation[i];
-        unsigned int titleId = titleTuple.titleId;
+        uint32_t titleId = titleTuple.titleId;
 
-        auto it = hashTable.find(titleId);
-        if (it != hashTable.end()) {
-            for (const auto &castTuple: it->second) {
+        tbb::concurrent_hash_map<uint32_t, std::vector<CastRelation>>::const_accessor acc;
+        if (hashTable.find(acc, titleId)) {
+            for (const auto &castTuple : acc->second) {
                 resultTuples.emplace_back(createResultTuple(castTuple, titleTuple));
             }
         }
@@ -55,6 +89,7 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
 
     return resultTuples;
 }
+
 
 
 TEST(ParallelizationTest, TestJoiningTuples) {

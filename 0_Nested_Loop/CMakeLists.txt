@@ -66,3 +66,4 @@ target_compile_definitions(NestedLoopExecutable PRIVATE
     DATA_DIRECTORY="${DATA_DIRECTORY}"
     SOURCE_DIRECTORY="${SOURCE_DIRECTORY}"
 )
+
