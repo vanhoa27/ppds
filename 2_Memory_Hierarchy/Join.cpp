@@ -22,6 +22,7 @@
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
+    resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
 
     // TODO: Implement Sort-Merge Join
     // IMPORTANT: You can assume for this benchmark that the join keys are sorted in both relations.
@@ -34,7 +35,7 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
             ++titleIndex;
         } else {
             size_t tempTitleIndex = titleIndex;
-            while (tempTitleIndex < titleRelation.size() && titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
+            while (titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
                 resultTuples.push_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
                 ++tempTitleIndex;
             }
@@ -44,6 +45,7 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
 
     return resultTuples;
 }
+
 
 //==--------------------------------------------------------------------==//
 //==------------------------- CORRECTNESS TEST --------------------------==//
@@ -103,8 +105,16 @@ TEST(MemoryHierachyTest, TestJoiningTuplesMultipleRuns) {
     Timer timer("Parallelized Join execute");
 
     std::cout << "Test reading data from a file.\n";
-    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"), 10000);
-    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"), 10000);
+    auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"), 10000);
+    auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"), 10000);
+
+    // Makes sure the test data is sorted after their keys
+    std::sort(leftRelation.begin(), leftRelation.end(), [](const CastRelation& lhs, const CastRelation& rhs) {
+        return lhs.movieId < rhs.movieId;
+    });
+    std::sort(rightRelation.begin(), rightRelation.end(), [](const TitleRelation& lhs, const TitleRelation& rhs) {
+        return lhs.titleId < rhs.titleId;
+    });
 
     timer.start();
 

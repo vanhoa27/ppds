@@ -20,25 +20,27 @@
 #include <gtest/gtest.h>
 #include <omp.h>
 #include <atomic>
-#include <numeric>
-#include <tbb/concurrent_hash_map.h>
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(castRelation.size() * numThreads / 2);
+    // resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
 
     const std::vector<CastRelation> &buildRelation = castRelation;
     const std::vector<TitleRelation> &probeRelation = titleRelation;
 
     std::unordered_map<uint32_t, std::vector<CastRelation>> hashTable;
+
     hashTable.reserve(buildRelation.size());
 
+    #pragma omp for schedule(static, 8) nowait
     for (const auto &buildTuple: buildRelation) {
         hashTable[buildTuple.movieId].push_back(buildTuple);
     }
 
+    #pragma omp for schedule(static, 8) nowait
     for (const auto &probeTuple: probeRelation) {
         auto it = hashTable.find(probeTuple.titleId);
         if (it != hashTable.end()) {
@@ -68,7 +70,6 @@ TEST(ParallelizationTest, TestJoiningTuples) {
     std::cout << "Result size: " << resultTuples.size() << std::endl;
     std::cout << "\n\n";
 }
-
 
 //==--------------------------------------------------------------------==//
 //==------------------------- CORRECTNESS TEST --------------------------==//
