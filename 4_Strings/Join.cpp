@@ -28,3 +28,69 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
 
     return resultTuples;
 }
+
+//==--------------------------------------------------------------------==//
+//==------------------------- CORRECTNESS TEST --------------------------==//
+//==--------------------------------------------------------------------==//
+// TODO: move tests into own directory
+
+std::vector<ResultRelation> testNestedLoopJoin(const std::vector<CastRelation>& leftRelation, const std::vector<TitleRelation>& rightRelation) {
+    std::vector<ResultRelation> result;
+    for (const auto &l : leftRelation) {
+        for (const auto &r : rightRelation) {
+            if (l.movieId == r.titleId) {
+                result.emplace_back(createResultTuple(l, r));
+            }
+        }
+    }
+    return result;
+}
+
+TEST(StringTest, TestCorrectness) {
+    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"));
+    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"));
+
+    auto resultTuples = performJoin(leftRelation, rightRelation,8);
+    auto testTuples = testNestedLoopJoin(leftRelation, rightRelation);
+
+    // if size mismatch -> direct error
+    ASSERT_EQ(resultTuples.size(), testTuples.size()) << "Size mismatch!";
+
+    // sort to ensure comparison
+    std::sort(resultTuples.begin(), resultTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
+        return std::tie(lhs.movieId, lhs.castInfoId, lhs.titleId) < std::tie(rhs.movieId, rhs.castInfoId, rhs.titleId);
+    });
+    std::sort(testTuples.begin(), testTuples.end(), [](const ResultRelation &lhs, const ResultRelation &rhs) {
+        return std::tie(lhs.movieId, lhs.castInfoId, lhs.titleId) < std::tie(rhs.movieId, rhs.castInfoId, rhs.titleId);
+    });
+
+    EXPECT_EQ(resultTuples, testTuples) << "The advanced join result does not match the simple join result.";
+
+    std::cout << "Everything is ok.\n";
+}
+
+
+//==--------------------------------------------------------------------==//
+//==------------------------- BENCHMARK TESTS --------------------------==//
+//==--------------------------------------------------------------------==//
+
+TEST(StringTest, TestJoiningTuplesMultipleRuns) {
+    constexpr int numRuns = 20;
+    Timer timer("Parallelized Join execute");
+
+    std::cout << "Test reading data from a file.\n";
+    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"), 10000);
+    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"), 10000);
+
+    timer.start();
+
+    for (int i = 0; i < numRuns; ++i) {
+        auto resultTuples = performJoin(leftRelation, rightRelation, 8);
+    }
+
+    timer.pause();
+
+    double totalTime = timer.getPrintTime(); // Get overall time in milliseconds
+    std::cout << "Total time for " << numRuns << " joins: " << totalTime << " ms" << std::endl;
+}
+
