@@ -12,6 +12,8 @@
     limitations under the License.
 */
 
+#include <complex>
+
 #include "TimerUtil.hpp"
 #include "JoinUtils.hpp"
 #include <unordered_map>
@@ -19,55 +21,68 @@
 #include <gtest/gtest.h>
 #include <omp.h>
 
+struct LsbHash {
+    size_t operator()(uint32_t movieId) const {
+        return movieId & 7; // Get the 3 LSB (000 to 111)
+    }
+};
+
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
+    resultTuples.reserve(castRelation.size() * numThreads / 2);
 
-    // TODO: Implement your join
-    // The benchmark will test it against skewed key distributions
-    resultTuples.reserve(castRelation.size() * titleRelation.size() / 2);
-
-    std::unordered_map<uint32_t, std::vector<CastRelation>> hashTable;
+    std::vector<std::vector<CastRelation>> partitions(8);
+    for (const auto& cast : castRelation) {
+        int partitionId = cast.movieId & 7;
+        partitions[partitionId].push_back(cast);
+    }
 
     #pragma omp parallel
     {
-        std::unordered_map<uint32_t, std::vector<CastRelation>> localHashTable;
+        std::vector<ResultRelation> localResult;
 
         #pragma omp for
-        for (size_t i = 0; i < castRelation.size(); ++i) {
-            const auto &buildTuple = castRelation[i];
-            localHashTable[buildTuple.movieId].push_back(buildTuple);
-        }
+        for (int i = 0; i < 8; ++i) {
+            std::unordered_map<uint32_t, std::vector<size_t>, LsbHash> hashTable;
+            const auto& partition = partitions[i];
 
-        #pragma omp critical
-        {
-            for (const auto &entry : localHashTable) {
-                hashTable[entry.first].insert(hashTable[entry.first].end(),
-                                               entry.second.begin(), entry.second.end());
+            for (size_t idx = 0; idx < partition.size(); ++idx) {
+                const auto& cast = partition[idx];
+                hashTable[cast.movieId].push_back(idx);
             }
-        }
-    }
 
-    #pragma omp parallel for
-    for (size_t i = 0; i < titleRelation.size(); ++i) {
-        const auto &probeTuple = titleRelation[i];
-        std::vector<ResultRelation> localResults;
-
-        auto it = hashTable.find(probeTuple.titleId);
-        if (it != hashTable.end()) {
-            for (const auto &buildTuple : it->second) {
-                localResults.emplace_back(createResultTuple(buildTuple, probeTuple));
+            for (size_t j = 0; j < titleRelation.size(); ++j) {
+                const auto& title = titleRelation[j];
+                if (auto it = hashTable.find(title.titleId); it != hashTable.end()) {
+                    for (const size_t match : it->second) {
+                        const auto& cast = partition[match];
+                        localResult.push_back(createResultTuple(cast, title));
+                    }
+                }
             }
         }
 
         #pragma omp critical
         {
-            resultTuples.insert(resultTuples.end(), localResults.begin(), localResults.end());
+            resultTuples.insert(resultTuples.end(), localResult.begin(), localResult.end());
         }
     }
 
     return resultTuples;
 }
+
+// std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
+//     omp_set_num_threads(numThreads);
+//     std::vector<ResultRelation> resultTuples;
+//     resultTuples.reserve(castRelation.size() * numThreads / 2);
+//
+//     // TODO: Implement your join
+//     // The benchmark will test it against skewed key distributions
+//
+//     return resultTuples;
+// }
+
 
 //==--------------------------------------------------------------------==//
 //==------------------------- CORRECTNESS TEST --------------------------==//

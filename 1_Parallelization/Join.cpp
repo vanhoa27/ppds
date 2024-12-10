@@ -34,19 +34,16 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
 
     hashTable.reserve(buildRelation.size());
 
-#pragma omp for schedule(static, 8) nowait
     for (size_t i = 0; i < buildRelation.size(); ++i) {
-        const auto &buildTuple = buildRelation[i];
+        const auto& buildTuple = buildRelation[i];
         hashTable[buildTuple.movieId].push_back(i);
     }
 
-#pragma omp for schedule(static, 8) nowait
     for (size_t i = 0; i < probeRelation.size(); ++i) {
         const auto &probeTuple = probeRelation[i];
-        auto it = hashTable.find(probeTuple.titleId);
-        if (it != hashTable.end()) {
-            for (size_t buildIndex : it->second) {
-                const auto &buildTuple = buildRelation[buildIndex];
+        if (auto it = hashTable.find(probeTuple.titleId); it != hashTable.end()) {
+            for (const size_t match : it->second) {
+                const auto &buildTuple = buildRelation[match];
                 resultTuples.emplace_back(createResultTuple(buildTuple, probeTuple));
             }
         }
