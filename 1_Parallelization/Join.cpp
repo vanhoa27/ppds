@@ -26,25 +26,27 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(castRelation.size() * numThreads / 2);
-    // resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
 
     const std::vector<CastRelation> &buildRelation = castRelation;
     const std::vector<TitleRelation> &probeRelation = titleRelation;
 
-    std::unordered_map<uint32_t, std::vector<CastRelation>> hashTable;
+    std::unordered_map<uint32_t, std::vector<size_t>> hashTable;
 
     hashTable.reserve(buildRelation.size());
 
-    #pragma omp for schedule(static, 8) nowait
-    for (const auto &buildTuple: buildRelation) {
-        hashTable[buildTuple.movieId].push_back(buildTuple);
+#pragma omp for schedule(static, 8) nowait
+    for (size_t i = 0; i < buildRelation.size(); ++i) {
+        const auto &buildTuple = buildRelation[i];
+        hashTable[buildTuple.movieId].push_back(i);
     }
 
-    #pragma omp for schedule(static, 8) nowait
-    for (const auto &probeTuple: probeRelation) {
+#pragma omp for schedule(static, 8) nowait
+    for (size_t i = 0; i < probeRelation.size(); ++i) {
+        const auto &probeTuple = probeRelation[i];
         auto it = hashTable.find(probeTuple.titleId);
         if (it != hashTable.end()) {
-            for (const auto &buildTuple: it->second) {
+            for (size_t buildIndex : it->second) {
+                const auto &buildTuple = buildRelation[buildIndex];
                 resultTuples.emplace_back(createResultTuple(buildTuple, probeTuple));
             }
         }

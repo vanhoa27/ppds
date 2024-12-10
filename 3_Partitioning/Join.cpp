@@ -90,14 +90,6 @@ TEST(PartioningTest, TestCorrectness) {
     auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"));
     auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"));
 
-    // Makes sure the test data is sorted after their keys
-    std::sort(leftRelation.begin(), leftRelation.end(), [](const CastRelation& lhs, const CastRelation& rhs) {
-        return lhs.movieId < rhs.movieId;
-    });
-    std::sort(rightRelation.begin(), rightRelation.end(), [](const TitleRelation& lhs, const TitleRelation& rhs) {
-        return lhs.titleId < rhs.titleId;
-    });
-
     auto resultTuples = performJoin(leftRelation, rightRelation,8);
     auto testTuples = testNestedLoopJoin(leftRelation, rightRelation);
 
