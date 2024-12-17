@@ -26,8 +26,9 @@ struct LsbHash {
         return movieId & 7; // Get the 3 LSB (000 to 111)
     }
 };
-
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
+ // templates verwenden
+ // virutal function call nachschauen
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(castRelation.size() * numThreads / 2);

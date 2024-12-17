@@ -36,7 +36,7 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
         } else {
             size_t tempTitleIndex = titleIndex;
             while (titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
-                resultTuples.push_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
+                resultTuples.emplace_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
                 ++tempTitleIndex;
             }
             ++castIndex;
