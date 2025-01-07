@@ -1,4 +1,6 @@
 zips
 .idea
 cmake-build-*/
+build/
 plots/
+*.kdev4

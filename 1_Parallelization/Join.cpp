@@ -26,30 +26,27 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
-    resultTuples.reserve(castRelation.size() * numThreads / 2);
+    resultTuples.reserve(castRelation.size() + titleRelation.size());
 
-    const std::vector<CastRelation> &buildRelation = castRelation;
-    const std::vector<TitleRelation> &probeRelation = titleRelation;
+    const std::vector<CastRelation> &probeRelation = castRelation;
+    const std::vector<TitleRelation> &buildRelation = titleRelation;
 
-    std::unordered_map<uint32_t, std::vector<size_t>> hashTable;
-
+    std::unordered_multimap<uint32_t, size_t> hashTable;
     hashTable.reserve(buildRelation.size());
 
     for (size_t i = 0; i < buildRelation.size(); ++i) {
         const auto& buildTuple = buildRelation[i];
-        hashTable[buildTuple.movieId].push_back(i);
+        hashTable.emplace(buildTuple.titleId, i);
     }
 
-    for (size_t i = 0; i < probeRelation.size(); ++i) {
-        const auto &probeTuple = probeRelation[i];
-        if (auto it = hashTable.find(probeTuple.titleId); it != hashTable.end()) {
-            for (const size_t match : it->second) {
-                const auto &buildTuple = buildRelation[match];
-                resultTuples.emplace_back(createResultTuple(buildTuple, probeTuple));
-            }
+    for (const auto &probeTuple : probeRelation) {
+        auto [begin, end] = hashTable.equal_range(probeTuple.castInfoId);
+        for (auto it = begin; it != end; ++it) {
+            const size_t buildIndex = it->second;
+            const auto &buildTuple = buildRelation[buildIndex];
+            resultTuples.emplace_back(createResultTuple(probeTuple, buildTuple));
         }
     }
-
     return resultTuples;
 }
 
@@ -71,7 +68,7 @@ TEST(ParallelizationTest, TestJoiningTuples) {
     std::cout << "\n\n";
 }
 
-//==--------------------------------------------------------------------==//
+//==--------------------------------------------------------------------==//S
 //==------------------------- CORRECTNESS TEST --------------------------==//
 //==--------------------------------------------------------------------==//
 // TODO: move tests into own directory
