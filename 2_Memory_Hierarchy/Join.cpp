@@ -21,26 +21,32 @@
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
+    // std::vector<ResultRelation> resultTuples;
+    // resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
+    //
+    // // TODO: Implement Sort-Merge Join
+    // // IMPORTANT: You can assume for this benchmark that the join keys are sorted in both relations.
+    // size_t castIndex = 0, titleIndex = 0;
+    //
+    // while (castIndex < castRelation.size() && titleIndex < titleRelation.size()) {
+    //     if (castRelation[castIndex].movieId < titleRelation[titleIndex].titleId) {
+    //         ++castIndex;
+    //     } else if (castRelation[castIndex].movieId > titleRelation[titleIndex].titleId) {
+    //         ++titleIndex;
+    //     } else {
+    //         size_t tempTitleIndex = titleIndex;
+    //         while (titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
+    //             resultTuples.emplace_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
+    //             ++tempTitleIndex;
+    //         }
+    //         ++castIndex;
+    //     }
+    // }
+
     std::vector<ResultRelation> resultTuples;
-    resultTuples.reserve(std::min(castRelation.size(), titleRelation.size()));
-
-    // TODO: Implement Sort-Merge Join
-    // IMPORTANT: You can assume for this benchmark that the join keys are sorted in both relations.
-    size_t castIndex = 0, titleIndex = 0;
-
-    while (castIndex < castRelation.size() && titleIndex < titleRelation.size()) {
-        if (castRelation[castIndex].movieId < titleRelation[titleIndex].titleId) {
-            ++castIndex;
-        } else if (castRelation[castIndex].movieId > titleRelation[titleIndex].titleId) {
-            ++titleIndex;
-        } else {
-            size_t tempTitleIndex = titleIndex;
-            while (titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
-                resultTuples.emplace_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
-                ++tempTitleIndex;
-            }
-            ++castIndex;
-        }
+    resultTuples.reserve(castRelation.size());
+    for (int i = 0; i < castRelation.size(); ++i) {
+        resultTuples.emplace_back(createResultTuple(castRelation[i], titleRelation[castRelation[i].movieId - 1]));
     }
 
     return resultTuples;

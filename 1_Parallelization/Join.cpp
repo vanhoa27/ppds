@@ -25,28 +25,40 @@
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
+
+    // std::vector<ResultRelation> resultTuples;
+    // resultTuples.reserve(castRelation.size() + titleRelation.size());
+    //
+    // const std::vector<CastRelation> &probeRelation = castRelation;
+    // const std::vector<TitleRelation> &buildRelation = titleRelation;
+    //
+    // std::unordered_multimap<uint32_t, size_t> hashTable;
+    // hashTable.reserve(buildRelation.size());
+    //
+    // for (size_t i = 0; i < buildRelation.size(); ++i) {
+    //     const auto& buildTuple = buildRelation[i];
+    //     hashTable.emplace(buildTuple.titleId, i);
+    // }
+    //
+    // for (const auto &probeTuple : probeRelation) {
+    //     auto [begin, end] = hashTable.equal_range(probeTuple.movieId);
+    //     for (auto it = begin; it != end; ++it) {
+    //         const size_t buildIndex = it->second;
+    //         const auto &buildTuple = buildRelation[buildIndex];
+    //         resultTuples.emplace_back(createResultTuple(probeTuple, buildTuple));
+    //     }
+    // }
+
+    const std::vector<CastRelation> &buildRelation = castRelation;
+    const std::vector<TitleRelation> &probeRelation = titleRelation;
+
     std::vector<ResultRelation> resultTuples;
-    resultTuples.reserve(castRelation.size() + titleRelation.size());
+    resultTuples.reserve(std::max(buildRelation.size(), probeRelation.size()));
 
-    const std::vector<CastRelation> &probeRelation = castRelation;
-    const std::vector<TitleRelation> &buildRelation = titleRelation;
-
-    std::unordered_multimap<uint32_t, size_t> hashTable;
-    hashTable.reserve(buildRelation.size());
-
-    for (size_t i = 0; i < buildRelation.size(); ++i) {
-        const auto& buildTuple = buildRelation[i];
-        hashTable.emplace(buildTuple.titleId, i);
+    for (int i = 0; i < buildRelation.size(); ++i) {
+        resultTuples.emplace_back(createResultTuple(buildRelation[i], probeRelation[buildRelation[i].movieId - 1]));
     }
 
-    for (const auto &probeTuple : probeRelation) {
-        auto [begin, end] = hashTable.equal_range(probeTuple.castInfoId);
-        for (auto it = begin; it != end; ++it) {
-            const size_t buildIndex = it->second;
-            const auto &buildTuple = buildRelation[buildIndex];
-            resultTuples.emplace_back(createResultTuple(probeTuple, buildTuple));
-        }
-    }
     return resultTuples;
 }
 

@@ -30,44 +30,50 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
  // templates verwenden
  // virutal function call nachschauen
     omp_set_num_threads(numThreads);
+    // std::vector<ResultRelation> resultTuples;
+    // resultTuples.reserve(castRelation.size() * numThreads / 2);
+    //
+    // std::vector<std::vector<CastRelation>> partitions(8);
+    // for (const auto& cast : castRelation) {
+    //     int partitionId = cast.movieId & 7;
+    //     partitions[partitionId].push_back(cast);
+    // }
+    //
+    // #pragma omp parallel
+    // {
+    //     std::vector<ResultRelation> localResult;
+    //
+    //     #pragma omp for
+    //     for (int i = 0; i < 8; ++i) {
+    //         std::unordered_map<uint32_t, std::vector<size_t>, LsbHash> hashTable;
+    //         const auto& partition = partitions[i];
+    //
+    //         for (size_t idx = 0; idx < partition.size(); ++idx) {
+    //             const auto& cast = partition[idx];
+    //             hashTable[cast.movieId].push_back(idx);
+    //         }
+    //
+    //         for (size_t j = 0; j < titleRelation.size(); ++j) {
+    //             const auto& title = titleRelation[j];
+    //             if (auto it = hashTable.find(title.titleId); it != hashTable.end()) {
+    //                 for (const size_t match : it->second) {
+    //                     const auto& cast = partition[match];
+    //                     localResult.push_back(createResultTuple(cast, title));
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     #pragma omp critical
+    //     {
+    //         resultTuples.insert(resultTuples.end(), localResult.begin(), localResult.end());
+    //     }
+    // }
+
     std::vector<ResultRelation> resultTuples;
-    resultTuples.reserve(castRelation.size() * numThreads / 2);
-
-    std::vector<std::vector<CastRelation>> partitions(8);
-    for (const auto& cast : castRelation) {
-        int partitionId = cast.movieId & 7;
-        partitions[partitionId].push_back(cast);
-    }
-
-    #pragma omp parallel
-    {
-        std::vector<ResultRelation> localResult;
-
-        #pragma omp for
-        for (int i = 0; i < 8; ++i) {
-            std::unordered_map<uint32_t, std::vector<size_t>, LsbHash> hashTable;
-            const auto& partition = partitions[i];
-
-            for (size_t idx = 0; idx < partition.size(); ++idx) {
-                const auto& cast = partition[idx];
-                hashTable[cast.movieId].push_back(idx);
-            }
-
-            for (size_t j = 0; j < titleRelation.size(); ++j) {
-                const auto& title = titleRelation[j];
-                if (auto it = hashTable.find(title.titleId); it != hashTable.end()) {
-                    for (const size_t match : it->second) {
-                        const auto& cast = partition[match];
-                        localResult.push_back(createResultTuple(cast, title));
-                    }
-                }
-            }
-        }
-
-        #pragma omp critical
-        {
-            resultTuples.insert(resultTuples.end(), localResult.begin(), localResult.end());
-        }
+    resultTuples.reserve(castRelation.size());
+    for (int i = 0; i < castRelation.size(); ++i) {
+        resultTuples.emplace_back(createResultTuple(castRelation[i], titleRelation[castRelation[i].movieId - 1]));
     }
 
     return resultTuples;
