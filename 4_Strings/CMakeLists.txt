@@ -29,7 +29,7 @@ set(PPDS_PROJECT_DIR "${CMAKE_SOURCE_DIR}/..")
 
 include_directories(${PPDS_PROJECT_DIR}/Util/include)
 if(NOT DEFINED DATA_DIRECTORY)
-    set(DATA_DIRECTORY "${PPDS_PROJECT_DIR}/../data/")
+    set(DATA_DIRECTORY "${PPDS_PROJECT_DIR}/DataGenerators/data/")
 endif()
 
 if(NOT DEFINED SOURCE_DIRECTORY)
@@ -58,7 +58,9 @@ FetchContent_MakeAvailable(googletest)
 add_library(${PROJECT_ROOT} SHARED Join.cpp)
 
 # Define the executable target that uses the shared library
-add_executable(${PROJECT_EXECUTABLE} Join.cpp)
+add_executable(${PROJECT_EXECUTABLE} Join.cpp
+        Trie.cpp
+        Trie.hpp)
 
 # Link with Libraries
 find_package(OpenMP REQUIRED)

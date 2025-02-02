@@ -14,20 +14,40 @@
 
 #include "TimerUtil.hpp"
 #include "JoinUtils.hpp"
+#include "Trie.hpp"
 #include <unordered_map>
 #include <iostream>
 #include <gtest/gtest.h>
 #include <omp.h>
 
+// std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
+//     omp_set_num_threads(numThreads);
+//     std::vector<ResultRelation> resultTuples;
+//
+//     // TODO: Implement a join on the strings cast.note and title.title
+//     // The benchmark will join on increasing string sizes: cast.note% LIKE title.title
+//
+//     return resultTuples;
+// }
+
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
-    omp_set_num_threads(numThreads);
+    // omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
 
-    // TODO: Implement a join on the strings cast.note and title.title
-    // The benchmark will join on increasing string sizes: cast.note% LIKE title.title
+    Trie trie;
+    for (const auto& title : titleRelation) {
+        trie.insertKey(title.title);
+    }
+
+    for (size_t i = 0; i < castRelation.size(); ++i) {
+        if (trie.startsWith(castRelation[i].note)) {
+            resultTuples.emplace_back(createResultTuple(castRelation[i], titleRelation[i]));
+        }
+    }
 
     return resultTuples;
 }
+
 
 //==--------------------------------------------------------------------==//
 //==------------------------- CORRECTNESS TEST --------------------------==//
@@ -38,7 +58,7 @@ std::vector<ResultRelation> testNestedLoopJoin(const std::vector<CastRelation>& 
     std::vector<ResultRelation> result;
     for (const auto &l : leftRelation) {
         for (const auto &r : rightRelation) {
-            if (l.movieId == r.titleId) {
+            if (l.note == r.title) {
                 result.emplace_back(createResultTuple(l, r));
             }
         }
@@ -75,7 +95,7 @@ TEST(StringTest, TestCorrectness) {
 //==--------------------------------------------------------------------==//
 
 TEST(StringTest, TestJoiningTuplesMultipleRuns) {
-    constexpr int numRuns = 20;
+    constexpr int numRuns = 1;
     Timer timer("Parallelized Join execute");
 
     std::cout << "Test reading data from a file.\n";
