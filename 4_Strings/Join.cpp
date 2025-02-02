@@ -34,14 +34,29 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
     // omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
 
+    std::cout << "TitleRelation.size(): " << titleRelation.size() << std::endl;
+    std::cout << "CastRelation.size(): " << castRelation.size() << std::endl;
+
+    // for (int i = 0; i < 20; ++i) {
+    //     std::cout << i << " " << titleRelation[i].title << "\n";
+    // }
+    // std::cout << "\n";
+    // for (int i = 0; i < 20; ++i) {
+    //     std::cout << i << " " << castRelation[i].note << "\n";
+    // }
+    // std::cout << "\n";
+
     Trie trie;
     for (const auto& title : titleRelation) {
         trie.insertKey(title.title);
     }
 
-    for (size_t i = 0; i < castRelation.size(); ++i) {
-        if (trie.startsWith(castRelation[i].note)) {
-            resultTuples.emplace_back(createResultTuple(castRelation[i], titleRelation[i]));
+    for (const auto& cast : castRelation) {
+        auto indices = trie.search(cast.note);
+        if (!indices.empty()) {
+            for (const auto& index : indices) {
+                resultTuples.emplace_back(createResultTuple(cast, titleRelation[index]));
+            }
         }
     }
 

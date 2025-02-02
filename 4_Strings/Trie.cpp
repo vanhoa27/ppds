@@ -1,6 +1,6 @@
 #include "Util/include/Trie.hpp"
 
-TrieNode::TrieNode() : isWordEnd(false) {}
+TrieNode::TrieNode() = default;
 
 Trie::Trie() { root = new TrieNode(); }
 
@@ -17,33 +17,24 @@ Trie::~Trie() {
 
 void Trie::insertKey(const std::string& word) const {
     TrieNode* node = root;
+    int counter = 0;
     for (const char& c : word) {
         if (!node->children.contains(c)) {
             node->children[c] = new TrieNode();
         }
         node = node->children[c];
+        ++counter;
     }
-    node->isWordEnd = true;
+    node->indices.push_back(counter);
 }
 
-bool Trie::search(const std::string& word) const {
+std::vector<int> Trie::search(const std::string& word) {
     TrieNode* node = root;
     for (const char& c : word) {
         if (!node->children.contains(c)) {
-            return false;
+            return {};
         }
         node = node->children[c];
     }
-    return node->isWordEnd;
-}
-
-bool Trie::startsWith(const std::string& word) const {
-    TrieNode* node = root;
-    for (const char& c : word) {
-        if (!node->children.contains(c)) {
-            return false;
-        }
-        node = node->children[c];
-    }
-    return true;
+    return node->indices;
 }

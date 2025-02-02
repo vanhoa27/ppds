@@ -2,11 +2,12 @@
 #define TRIE_H
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class TrieNode {
 public:
     std::unordered_map<char, TrieNode*> children;
-    bool isWordEnd;
+    std::vector<int> indices;
     TrieNode();
 };
 
@@ -16,8 +17,7 @@ public:
     ~Trie();
 
     void insertKey(const std::string& word) const;
-    [[nodiscard]] bool search(const std::string& word) const;
-    [[nodiscard]] bool startsWith(const std::string& word) const;
+    std::vector<int> search(const std::string& word);
 private:
     TrieNode* root;
 
