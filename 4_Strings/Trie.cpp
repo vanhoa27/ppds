@@ -1,4 +1,4 @@
-#include "Trie.hpp"
+#include "Util/include/Trie.hpp"
 
 TrieNode::TrieNode() : isWordEnd(false) {}
 

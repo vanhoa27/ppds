@@ -14,7 +14,7 @@
 
 #include "TimerUtil.hpp"
 #include "JoinUtils.hpp"
-#include "Trie.hpp"
+#include "Util/include/Trie.hpp"
 #include <unordered_map>
 #include <iostream>
 #include <gtest/gtest.h>
