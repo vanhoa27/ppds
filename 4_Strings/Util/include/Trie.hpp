@@ -1,5 +1,6 @@
 #ifndef TRIE_H
 #define TRIE_H
+
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -8,6 +9,8 @@ class TrieNode {
 public:
     std::unordered_map<char, TrieNode*> children;
     std::vector<int> indices;
+    bool isEndOfWord;
+
     TrieNode();
 };
 
@@ -16,12 +19,12 @@ public:
     Trie();
     ~Trie();
 
-    void insertKey(const std::string& word) const;
-    std::vector<int> search(const std::string& word);
+    void insertKey(const std::string& word);
+    std::vector<std::string> getPrefixes(const std::string& word);
+
 private:
     TrieNode* root;
-
-    static void clear(const TrieNode* node);
+    void clear(TrieNode* node);
 };
 
-#endif //TRIE_H
+#endif // TRIE_H

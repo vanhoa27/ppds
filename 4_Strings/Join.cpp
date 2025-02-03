@@ -31,49 +31,42 @@
 // }
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
-    // omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
 
-    std::cout << "TitleRelation.size(): " << titleRelation.size() << std::endl;
-    std::cout << "CastRelation.size(): " << castRelation.size() << std::endl;
-
-    // for (int i = 0; i < 20; ++i) {
-    //     std::cout << i << " " << titleRelation[i].title << "\n";
-    // }
-    // std::cout << "\n";
-    // for (int i = 0; i < 20; ++i) {
-    //     std::cout << i << " " << castRelation[i].note << "\n";
-    // }
-    // std::cout << "\n";
-
     Trie trie;
-    for (const auto& title : titleRelation) {
-        trie.insertKey(title.title);
+    std::unordered_map<std::string, int> titleIndexMap;
+    for (size_t i = 0; i < titleRelation.size(); ++i) {
+        trie.insertKey(titleRelation[i].title);
+        titleIndexMap[titleRelation[i].title] = i;
     }
 
     for (const auto& cast : castRelation) {
-        auto indices = trie.search(cast.note);
-        if (!indices.empty()) {
-            for (const auto& index : indices) {
-                resultTuples.emplace_back(createResultTuple(cast, titleRelation[index]));
-            }
+        std::vector<std::string> matchedTitles = trie.getPrefixes(cast.note);
+
+        for (const auto& titleStr : matchedTitles) {
+            int index = titleIndexMap[titleStr];
+            resultTuples.emplace_back(createResultTuple(cast, titleRelation[index]));
         }
     }
 
     return resultTuples;
 }
 
-
 //==--------------------------------------------------------------------==//
 //==------------------------- CORRECTNESS TEST --------------------------==//
 //==--------------------------------------------------------------------==//
 // TODO: move tests into own directory
 
+// Function to check if one string starts with another
+bool startsWith(const std::string& fullString, const std::string& prefix) {
+    return fullString.rfind(prefix, 0) == 0;  // Checks if fullString starts with prefix
+}
+
 std::vector<ResultRelation> testNestedLoopJoin(const std::vector<CastRelation>& leftRelation, const std::vector<TitleRelation>& rightRelation) {
     std::vector<ResultRelation> result;
     for (const auto &l : leftRelation) {
         for (const auto &r : rightRelation) {
-            if (l.note == r.title) {
+            if (startsWith(l.note, r.title)) {  // Match when note starts with title
                 result.emplace_back(createResultTuple(l, r));
             }
         }
@@ -82,8 +75,8 @@ std::vector<ResultRelation> testNestedLoopJoin(const std::vector<CastRelation>& 
 }
 
 TEST(StringTest, TestCorrectness) {
-    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"));
-    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"));
+    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast.csv"), 2000);
+    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title.csv"), 2000);
 
     auto resultTuples = performJoin(leftRelation, rightRelation,8);
     auto testTuples = testNestedLoopJoin(leftRelation, rightRelation);
@@ -114,8 +107,8 @@ TEST(StringTest, TestJoiningTuplesMultipleRuns) {
     Timer timer("Parallelized Join execute");
 
     std::cout << "Test reading data from a file.\n";
-    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast_info_uniform.csv"), 10000);
-    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title_info_uniform.csv"), 10000);
+    const auto leftRelation = loadCastRelation(DATA_DIRECTORY + std::string("cast.csv"), 2000);
+    const auto rightRelation = loadTitleRelation(DATA_DIRECTORY + std::string("title.csv"), 2000);
 
     timer.start();
 

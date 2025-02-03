@@ -1,10 +1,10 @@
 #include "Util/include/Trie.hpp"
 
-TrieNode::TrieNode() = default;
+TrieNode::TrieNode() : isEndOfWord(false) {}
 
 Trie::Trie() { root = new TrieNode(); }
 
-void Trie::clear(const TrieNode* node) {
+void Trie::clear(TrieNode* node) {
     for (auto& child : node->children) {
         clear(child.second);
     }
@@ -15,26 +15,33 @@ Trie::~Trie() {
     clear(root);
 }
 
-void Trie::insertKey(const std::string& word) const {
+void Trie::insertKey(const std::string& word) {
     TrieNode* node = root;
-    int counter = 0;
     for (const char& c : word) {
         if (!node->children.contains(c)) {
             node->children[c] = new TrieNode();
         }
         node = node->children[c];
-        ++counter;
     }
-    node->indices.push_back(counter);
+    node->isEndOfWord = true;
 }
 
-std::vector<int> Trie::search(const std::string& word) {
+std::vector<std::string> Trie::getPrefixes(const std::string& word) {
     TrieNode* node = root;
+    std::vector<std::string> result;
+    std::string prefix;
+
     for (const char& c : word) {
         if (!node->children.contains(c)) {
-            return {};
+            break;
         }
         node = node->children[c];
+        prefix += c;
+
+        if (node->isEndOfWord) {  // If a valid word ends here, store the prefix
+            result.push_back(prefix);
+        }
     }
-    return node->indices;
+
+    return result;
 }
