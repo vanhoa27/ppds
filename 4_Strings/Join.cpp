@@ -31,20 +31,33 @@
 // }
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
+    omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
+    resultTuples.reserve(std::max(castRelation.size(), titleRelation.size()));
     Trie trie;
 
-    // Insert all titles into the Trie with their index
     for (size_t i = 0; i < titleRelation.size(); ++i) {
         trie.insertKey(titleRelation[i].title, i);
     }
 
-    // Search for matching titles where title.title LIKE cast.note%
-    for (const auto& cast : castRelation) {
-        auto indices = trie.searchPrefix(cast.note);
-        for (const auto& index : indices) {
-            resultTuples.emplace_back(createResultTuple(cast, titleRelation[index]));
+    std::vector<std::vector<ResultRelation>> threadResults(numThreads);
+    #pragma omp parallel
+    {
+        int threadID = omp_get_thread_num();
+        std::vector<ResultRelation>& localResults = threadResults[threadID];
+
+        #pragma omp for schedule(dynamic, numThreads)
+        for (size_t i = 0; i < castRelation.size(); ++i) {
+            auto indices = trie.searchPrefix(castRelation[i].note);
+            for (const auto& index : indices) {
+                localResults.emplace_back(createResultTuple(castRelation[i], titleRelation[index]));
+            }
         }
+    }
+
+    #pragma omp for schedule(static, 5)
+    for (const auto& localResults : threadResults) {
+        resultTuples.insert(resultTuples.end(), localResults.begin(), localResults.end());
     }
 
     return resultTuples;
@@ -101,7 +114,7 @@ TEST(StringTest, TestCorrectness) {
 //==--------------------------------------------------------------------==//
 
 TEST(StringTest, TestJoiningTuplesMultipleRuns) {
-    constexpr int numRuns = 1;
+    constexpr int numRuns = 20;
     Timer timer("Parallelized Join execute");
 
     std::cout << "Test reading data from a file.\n";
