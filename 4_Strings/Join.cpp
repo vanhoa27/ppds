@@ -32,19 +32,17 @@
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
     std::vector<ResultRelation> resultTuples;
-
     Trie trie;
-    std::unordered_map<std::string, int> titleIndexMap;
+
+    // Insert all titles into the Trie with their index
     for (size_t i = 0; i < titleRelation.size(); ++i) {
-        trie.insertKey(titleRelation[i].title);
-        titleIndexMap[titleRelation[i].title] = i;
+        trie.insertKey(titleRelation[i].title, i);
     }
 
+    // Search for matching titles where title.title LIKE cast.note%
     for (const auto& cast : castRelation) {
-        std::vector<std::string> matchedTitles = trie.getPrefixes(cast.note);
-
-        for (const auto& titleStr : matchedTitles) {
-            int index = titleIndexMap[titleStr];
+        auto indices = trie.searchPrefix(cast.note);
+        for (const auto& index : indices) {
             resultTuples.emplace_back(createResultTuple(cast, titleRelation[index]));
         }
     }
@@ -66,7 +64,7 @@ std::vector<ResultRelation> testNestedLoopJoin(const std::vector<CastRelation>& 
     std::vector<ResultRelation> result;
     for (const auto &l : leftRelation) {
         for (const auto &r : rightRelation) {
-            if (startsWith(l.note, r.title)) {  // Match when note starts with title
+            if (startsWith(r.title, l.note)) {  // Match when note starts with title
                 result.emplace_back(createResultTuple(l, r));
             }
         }

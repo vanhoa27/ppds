@@ -19,8 +19,8 @@ public:
     Trie();
     ~Trie();
 
-    void insertKey(const std::string& word);
-    std::vector<std::string> getPrefixes(const std::string& word);
+    void insertKey(const std::string& word, int index);
+    std::vector<int> searchPrefix(const std::string& prefix);
 
 private:
     TrieNode* root;

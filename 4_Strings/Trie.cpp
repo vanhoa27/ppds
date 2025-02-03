@@ -15,7 +15,7 @@ Trie::~Trie() {
     clear(root);
 }
 
-void Trie::insertKey(const std::string& word) {
+void Trie::insertKey(const std::string& word, int index) {
     TrieNode* node = root;
     for (const char& c : word) {
         if (!node->children.contains(c)) {
@@ -24,24 +24,33 @@ void Trie::insertKey(const std::string& word) {
         node = node->children[c];
     }
     node->isEndOfWord = true;
+    node->indices.push_back(index);
 }
 
-std::vector<std::string> Trie::getPrefixes(const std::string& word) {
+std::vector<int> Trie::searchPrefix(const std::string& prefix) {
     TrieNode* node = root;
-    std::vector<std::string> result;
-    std::string prefix;
-
-    for (const char& c : word) {
+    for (const char& c : prefix) {
         if (!node->children.contains(c)) {
-            break;
+            return {};
         }
         node = node->children[c];
-        prefix += c;
+    }
 
-        if (node->isEndOfWord) {  // If a valid word ends here, store the prefix
-            result.push_back(prefix);
+    std::vector<int> results;
+    std::vector<TrieNode*> stack = {node};
+
+    while (!stack.empty()) {
+        TrieNode* current = stack.back();
+        stack.pop_back();
+
+        if (current->isEndOfWord) {
+            results.insert(results.end(), current->indices.begin(), current->indices.end());
+        }
+
+        for (auto& child : current->children) {
+            stack.push_back(child.second);
         }
     }
 
-    return result;
+    return results;
 }
