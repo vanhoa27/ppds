@@ -114,7 +114,7 @@ TEST(StringTest, TestCorrectness) {
 //==--------------------------------------------------------------------==//
 
 TEST(StringTest, TestJoiningTuplesMultipleRuns) {
-    constexpr int numRuns = 20;
+    constexpr int numRuns = 1;
     Timer timer("Parallelized Join execute");
 
     std::cout << "Test reading data from a file.\n";

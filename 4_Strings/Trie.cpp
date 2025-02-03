@@ -1,63 +1,9 @@
-// #include "Util/include/Trie.hpp"
-//
-// TrieNode::TrieNode() : isEndOfWord(false) {}
-//
-// Trie::Trie() { root = new TrieNode(); }
-//
-// Trie::~Trie() {
-//     for (auto& child : root->children) {
-//         delete child.second;
-//     }
-// }
-//
-// void Trie::insertKey(const std::string& word, int index) {
-//     TrieNode* node = root;
-//     for (const char &c : word) {
-//         auto it = node->children.find(c);
-//         if (it == node->children.end()) {
-//             it = node->children.emplace(c, new TrieNode()).first;
-//         }
-//         node = it->second;
-//     }
-//
-//     node->isEndOfWord = true;
-//     node->indices.emplace_back(index);
-// }
-//
-// std::vector<int> Trie::searchPrefix(const std::string& prefix) {
-//     // if (prefix.empty()) return {};
-//     TrieNode* node = root;
-//     for (const char &c : prefix) {
-//         auto it = node->children.find(c);
-//         if (it == node->children.end()) {
-//             return {};
-//         }
-//         node = it->second;
-//     }
-//
-//     std::vector<int> results;
-//     std::vector<TrieNode*> stack = {node};
-//
-//     while (!stack.empty()) {
-//         TrieNode* current = stack.back();
-//         stack.pop_back();
-//
-//         if (current->isEndOfWord) {
-//             results.insert(results.end(), current->indices.begin(), current->indices.end());
-//         }
-//
-//         for (auto& child : current->children) {
-//             stack.push_back(child.second);
-//         }
-//     }
-//
-//     return results;
-// }
-
 #include "Util/include/Trie.hpp"
+#include <queue>
 
+// TrieNode
 TrieNode::TrieNode() : isEndOfWord(false), indexType(IndexType::SINGLE) {
-    index = -1; // Default invalid index
+    index = -1;
 }
 
 TrieNode::~TrieNode() {
@@ -86,6 +32,8 @@ std::vector<int> TrieNode::getIndices() const {
     return *indices;
 }
 
+
+// Trie
 Trie::Trie() { root = new TrieNode(); }
 
 void Trie::clear(TrieNode* node) {
@@ -112,7 +60,8 @@ void Trie::insertKey(const std::string& word, int index) {
     node->addIndex(index);
 }
 
-std::vector<int> Trie::searchPrefix(const std::string& prefix) {
+std::vector<int> Trie::searchPrefix(const std::string &prefix) const {
+    if (prefix.empty()) {}
     TrieNode* node = root;
     for (const char &c : prefix) {
         auto it = node->children.find(c);
@@ -130,9 +79,10 @@ std::vector<int> Trie::searchPrefix(const std::string& prefix) {
         stack.pop_back();
 
         if (current->isEndOfWord) {
-            std::vector<int> indices = current->getIndices();
+            const std::vector<int>& indices = current->getIndices();
             results.insert(results.end(), indices.begin(), indices.end());
         }
+
 
         for (auto& child : current->children) {
             stack.push_back(child.second);
