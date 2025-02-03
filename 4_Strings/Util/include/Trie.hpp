@@ -1,13 +1,14 @@
 #ifndef TRIE_H
 #define TRIE_H
 
+#include <array>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 class TrieNode {
 public:
-    std::unordered_map<char, TrieNode*> children;
+    static constexpr int CHAR_SET_SIZE = 37;
+    std::array<TrieNode*, CHAR_SET_SIZE> children{};
     bool isEndOfWord;
     enum class IndexType { SINGLE, MULTIPLE } indexType;
 
@@ -19,7 +20,7 @@ public:
     TrieNode();
     ~TrieNode();
     void addIndex(int newIndex);
-    std::vector<int> getIndices() const;
+    [[nodiscard]] std::vector<int> getIndices() const;
 };
 
 class Trie {
@@ -28,11 +29,11 @@ public:
     ~Trie();
 
     void insertKey(const std::string& word, int index);
-    std::vector<int> searchPrefix(const std::string& prefix) const;
-
+    [[nodiscard]] std::vector<int> searchPrefix(const std::string& prefix) const;
 private:
     TrieNode* root;
     void clear(TrieNode* node);
+    [[nodiscard]] static char mapCharToIndex(char c);
 };
 
 #endif // TRIE_H

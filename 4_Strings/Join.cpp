@@ -34,12 +34,19 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(std::max(castRelation.size(), titleRelation.size()));
+
+    // Timer timer("second Join execute");
+    // timer.start();
     Trie trie;
 
     for (size_t i = 0; i < titleRelation.size(); ++i) {
         trie.insertKey(titleRelation[i].title, i);
     }
 
+    // timer.pause();
+    // std::cout << "insert Timer: " << timer << std::endl;
+
+    // timer.start();
     std::vector<std::vector<ResultRelation>> threadResults(numThreads);
     #pragma omp parallel
     {
@@ -59,6 +66,9 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
     for (const auto& localResults : threadResults) {
         resultTuples.insert(resultTuples.end(), localResults.begin(), localResults.end());
     }
+
+    // timer.pause();
+    // std::cout << "Search Timer: " << timer << std::endl;
 
     return resultTuples;
 }
@@ -114,7 +124,7 @@ TEST(StringTest, TestCorrectness) {
 //==--------------------------------------------------------------------==//
 
 TEST(StringTest, TestJoiningTuplesMultipleRuns) {
-    constexpr int numRuns = 1;
+    constexpr int numRuns = 20;
     Timer timer("Parallelized Join execute");
 
     std::cout << "Test reading data from a file.\n";

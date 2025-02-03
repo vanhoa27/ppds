@@ -1,8 +1,11 @@
 #include "Util/include/Trie.hpp"
+
+#include <cwctype>
 #include <queue>
 
 // TrieNode
 TrieNode::TrieNode() : isEndOfWord(false), indexType(IndexType::SINGLE) {
+    children.fill(nullptr);
     index = -1;
 }
 
@@ -32,13 +35,13 @@ std::vector<int> TrieNode::getIndices() const {
     return *indices;
 }
 
-
 // Trie
 Trie::Trie() { root = new TrieNode(); }
 
 void Trie::clear(TrieNode* node) {
+    if (!node) return;
     for (auto& child : node->children) {
-        clear(child.second);
+        if (child) clear(child);
     }
     delete node;
 }
@@ -47,28 +50,37 @@ Trie::~Trie() {
     clear(root);
 }
 
+inline char Trie::mapCharToIndex(char c) {
+    if (c >= 'a' && c <= 'z') return c - 'a';        // 0 - 25
+    if (c >= '0' && c <= '9') return c - '0' + 26;   // 26 - 34
+    return 36;  // Special character mapped to index 36
+}
+
 void Trie::insertKey(const std::string& word, int index) {
     TrieNode* node = root;
-    for (const char &c : word) {
-        auto it = node->children.find(c);
-        if (it == node->children.end()) {
-            it = node->children.emplace(c, new TrieNode()).first;
+    for (const char& c : word) {
+        char ch = mapCharToIndex(c);
+        if (!node->children[ch]) {
+            node->children[ch] = new TrieNode();
         }
-        node = it->second;
+        node = node->children[ch];
     }
     node->isEndOfWord = true;
     node->addIndex(index);
 }
 
 std::vector<int> Trie::searchPrefix(const std::string &prefix) const {
-    if (prefix.empty()) {}
+    if (prefix.empty()) {
+        return {};
+    }
+
     TrieNode* node = root;
     for (const char &c : prefix) {
-        auto it = node->children.find(c);
-        if (it == node->children.end()) {
+        char ch = mapCharToIndex(c);
+        if (!node->children[ch]) {
             return {};
         }
-        node = it->second;
+        node = node->children[ch];
     }
 
     std::vector<int> results;
@@ -83,9 +95,8 @@ std::vector<int> Trie::searchPrefix(const std::string &prefix) const {
             results.insert(results.end(), indices.begin(), indices.end());
         }
 
-
         for (auto& child : current->children) {
-            stack.push_back(child.second);
+            if (child) stack.push_back(child);
         }
     }
     return results;
