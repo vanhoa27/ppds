@@ -1,23 +1,25 @@
-#ifndef TRIE_H
-#define TRIE_H
+#ifndef BITWISE_TRIE_H
+#define BITWISE_TRIE_H
 
-#include <array>
+#include <cstdint>
 #include <string>
 #include <vector>
 
 class TrieNode {
 public:
-    static constexpr int CHAR_SET_SIZE = 37;
-    std::array<TrieNode*, CHAR_SET_SIZE> children{};
-    bool isEndOfWord;
+    uint64_t bitmap:37 = 0;
+    std::vector<TrieNode*> children;
+    bool isEndOfWord = false;
     enum class IndexType { SINGLE, MULTIPLE } indexType;
 
     union {
-        int index;
+        int index = -1;
         std::vector<int>* indices;
     };
 
-    TrieNode();
+    TrieNode() : indexType(IndexType::SINGLE){
+    };
+
     ~TrieNode();
     inline void addIndex(int newIndex);
     [[nodiscard]] inline std::vector<int> getIndices() const;
@@ -29,11 +31,12 @@ public:
     ~Trie();
 
     void insertKey(const std::string& word, int index);
-    [[nodiscard]] std::vector<int> searchPrefix(const std::string& prefix) const;
+    [[nodiscard]] std::vector<int> searchPrefix(const std::string& prefix);
 private:
     TrieNode* root;
     void clear(TrieNode* node);
-    [[nodiscard]] static int mapCharToIndex(char c);
+    // void collectIndices(TrieNode* node, std::vector<int>& indices);
+    [[nodiscard]] inline int charToBit(char c);
 };
 
-#endif // TRIE_H
+#endif // BITWISE_TRIE_H

@@ -15,39 +15,25 @@
 #include "TimerUtil.hpp"
 #include "JoinUtils.hpp"
 #include "Util/include/Trie.hpp"
-#include <unordered_map>
 #include <iostream>
 #include <gtest/gtest.h>
 #include <omp.h>
-
-// std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
-//     omp_set_num_threads(numThreads);
-//     std::vector<ResultRelation> resultTuples;
-//
-//     // TODO: Implement a join on the strings cast.note and title.title
-//     // The benchmark will join on increasing string sizes: cast.note% LIKE title.title
-//
-//     return resultTuples;
-// }
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(std::max(castRelation.size(), titleRelation.size()));
 
-    // Timer timer("second Join execute");
-    // timer.start();
+    // TODO: Implement a join on the strings cast.note and title.title
+    // The benchmark will join on increasing string sizes: cast.note% LIKE title.title
     Trie trie;
 
     for (size_t i = 0; i < titleRelation.size(); ++i) {
         trie.insertKey(titleRelation[i].title, i);
     }
 
-    // timer.pause();
-    // std::cout << "insert Timer: " << timer << std::endl;
-
-    // timer.start();
     std::vector<std::vector<ResultRelation>> threadResults(numThreads);
+
     #pragma omp parallel
     {
         int threadID = omp_get_thread_num();
@@ -62,13 +48,9 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
         }
     }
 
-    #pragma omp for schedule(static, 5)
     for (const auto& localResults : threadResults) {
         resultTuples.insert(resultTuples.end(), localResults.begin(), localResults.end());
     }
-
-    // timer.pause();
-    // std::cout << "Search Timer: " << timer << std::endl;
 
     return resultTuples;
 }
@@ -78,7 +60,6 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRel
 //==--------------------------------------------------------------------==//
 // TODO: move tests into own directory
 
-// Function to check if one string starts with another
 bool startsWith(const std::string& fullString, const std::string& prefix) {
     return fullString.rfind(prefix, 0) == 0;  // Checks if fullString starts with prefix
 }

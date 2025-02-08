@@ -1,11 +1,6 @@
-#include "Util/include/Trie.hpp"
+#include "Util/include/BitwiseTrie.hpp"
 
 // TrieNode
-TrieNode::TrieNode() : isEndOfWord(false), indexType(IndexType::SINGLE) {
-    children.fill(nullptr);
-    index = -1;
-}
-
 TrieNode::~TrieNode() {
     if (indexType == IndexType::MULTIPLE) {
         delete indices;
@@ -47,37 +42,54 @@ Trie::~Trie() {
     clear(root);
 }
 
-inline int Trie::mapCharToIndex(char c) {
+inline int Trie::charToBit(char c) {
     if (c >= '0' && c <= '9') return c - '0';      // 0 - 9
     if (c >= 'a' && c <= 'z') return c - 'a' + 10; // 10 - 35
     return 36;
 }
 
-void Trie::insertKey(const std::string& word, int index) {
-    TrieNode* node = root;
-    for (const char& c : word) {
-        int ch = mapCharToIndex(c);
-        if (!node->children[ch]) {
-            node->children[ch] = new TrieNode();
+// void Trie::collectIndices(TrieNode* node, std::vector<int>& indices) {
+//     if (!node) return;
+//     if (node->isEndOfWord) {
+//         // const std::vector<int>& indices = node->getIndices();
+//         // results.insert(results.end(), indices.begin(), indices.end());
+//         std::vector<int> res = node->getIndices();
+//         indices.insert(indices.end(), res.begin(), res.end());
+//     }
+//
+//     for (TrieNode* child : node->children) {
+//         collectIndices(child, indices);
+//     }
+// }
+
+void Trie::insertKey(const std::string &word, int index) {
+    TrieNode *node = root;
+    for (const char &c: word) {
+        int bit = charToBit(c);
+
+        if (!(node->bitmap & (1ULL << bit))) {
+            node->bitmap |= (1ULL << bit);
+            node->children.push_back(new TrieNode());
         }
-        node = node->children[ch];
+
+        int childIndex = __builtin_popcountll(node->bitmap & ((1ULL << bit) - 1));
+        node = node->children[childIndex];
     }
     node->isEndOfWord = true;
     node->addIndex(index);
 }
 
-std::vector<int> Trie::searchPrefix(const std::string &prefix) const {
-    if (prefix.empty()) {
-        return {};
-    }
+std::vector<int> Trie::searchPrefix(const std::string &prefix) {
+    if (prefix.empty()) return {};
 
     TrieNode* node = root;
-    for (const char &c : prefix) {
-        int ch = mapCharToIndex(c);
-        if (!node->children[ch]) {
-            return {};
-        }
-        node = node->children[ch];
+    for (const char &c: prefix) {
+        int bit = charToBit(c);
+
+        if (!(node->bitmap & (1ULL << bit))) return {};
+
+        int childIndex = __builtin_popcountll(node->bitmap & ((1ULL << bit) - 1));
+        node = node->children[childIndex];
     }
 
     std::vector<int> results;
@@ -97,4 +109,5 @@ std::vector<int> Trie::searchPrefix(const std::string &prefix) const {
         }
     }
     return results;
+    // return indices;
 }
