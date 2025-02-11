@@ -1,0 +1,211 @@
+Directory 2_Memory_Hierarchy not present or empty. Skip.
+---------------------------------------------------------
+Processing 1_Parallelization
+---------------------------------------------------------
+Compile 1_Parallelization
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- OpenMP found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_102/ppds/1_Parallelization/build
+[  8%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[ 16%] Linking CXX shared library ../../../lib/libgtest.so
+[ 16%] Built target gtest
+[ 25%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 33%] Linking CXX shared library ../../../lib/libgtest_main.so
+[ 33%] Built target gtest_main
+[ 41%] Building CXX object CMakeFiles/1_Parallelization.dir/Join.cpp.o
+[ 50%] Linking CXX shared library lib1_Parallelization.so
+[ 50%] Built target 1_Parallelization
+[ 58%] Building CXX object CMakeFiles/ParallelismExecutable.dir/Join.cpp.o
+[ 66%] Linking CXX executable ParallelismExecutable
+[ 66%] Built target ParallelismExecutable
+[ 75%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 83%] Linking CXX shared library ../../../lib/libgmock.so
+[ 83%] Built target gmock
+[ 91%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[100%] Linking CXX shared library ../../../lib/libgmock_main.so
+[100%] Built target gmock_main
+
+Run pre-benchmark tests 1_Parallelization
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_102/ppds/1_Parallelization/build_tests
+Running main() from /home/ppdsgrp3/job_102/ppds/1_Parallelization/build_tests/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = JoinTest*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from JoinTest
+[ RUN      ] JoinTest.Parallelization_JoiningTwoTuples
+Loaded enough tuples. Returning now...
+Loaded 1 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 1 tuples from file.
+[       OK ] JoinTest.Parallelization_JoiningTwoTuples (0 ms)
+[ RUN      ] JoinTest.Parallelization_simpleJoin
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Parallelization_simpleJoin (38 ms)
+[ RUN      ] JoinTest.Parallelization_noMatches
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Parallelization_noMatches (32 ms)
+[ RUN      ] JoinTest.Parallelization_onlyMatches
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Parallelization_onlyMatches (45 ms)
+[----------] 4 tests from JoinTest (116 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (116 ms total)
+[  PASSED  ] 4 tests.
+Test run success.
+
+Run benchmark 1_Parallelization
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_102/ppds/1_Parallelization/build_benchmark
+Loaded 8659209 tuples from file.
+Loaded 3334602 tuples from file.
+Running iteration: 1/3 with param: 1
+Running iteration: 2/3 with param: 1
+Running iteration: 3/3 with param: 1
+
+Total execution time: 0.001425s and throughput: 14036900.203254 tup/s 
+
+Running iteration: 1/3 with param: 2
+Running iteration: 2/3 with param: 2
+Running iteration: 3/3 with param: 2
+
+Total execution time: 0.001423s and throughput: 14057346.005875 tup/s 
+
+Running iteration: 1/3 with param: 4
+Running iteration: 2/3 with param: 4
+Running iteration: 3/3 with param: 4
+
+Total execution time: 0.001429s and throughput: 14000504.018145 tup/s 
+
+Running iteration: 1/3 with param: 8
+Running iteration: 2/3 with param: 8
+Running iteration: 3/3 with param: 8
+
+Total execution time: 0.001429s and throughput: 13993721.949876 tup/s 
+
+
+Generate Plot 1_Parallelization
+Your new result: 3503025.0000 is not better than your previous best result: : 91475050.0000
+
+==---------------------------==
+==------- LEADERBOARD -------==
+==---------------------------==
+ Current leaderboard for 1_Parallelization benchmark.
+ Here, x is the number of threads and y is the throughput:
+-----------------------------------------------------------------------
+Ranking | Group | 1:(x, y)  | 2:(x, y)  | 3:(x, y)  | 4:(x, y)  | Score
+-----------------------------------------------------------------------
+    1   | ppdsgrp3 | (1, 378015000.00) | (2, 365103000.00) | (4, 362433000.00) | (8, 365183000.00) | 91475050.00
+    2   | ppdsgrp1 | (1, 81740000.00) | (2, 82681900.00) | (4, 82876500.00) | (8, 82714800.00) | 20660770.00
+    3   | ppdsgrp2 | (1, 26114700.00) | (2, 35655600.00) | (4, 44470600.00) | (8, 39214400.00) | 9560977.50
+
+
+Directory 4_Strings not present or empty. Skip.
+Directory 3_Partitioning not present or empty. Skip.
+---------------------------------------------------------
+Processing 0_Nested_Loop
+---------------------------------------------------------
+Compile 0_Nested_Loop
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_102/ppds/0_Nested_Loop/build
+[  8%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[ 16%] Linking CXX static library ../../../lib/libgtest.a
+[ 16%] Built target gtest
+[ 25%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 33%] Linking CXX static library ../../../lib/libgtest_main.a
+[ 33%] Built target gtest_main
+[ 41%] Building CXX object CMakeFiles/0_Nested_Loop.dir/NestedLoop.cpp.o
+[ 50%] Linking CXX shared library lib0_Nested_Loop.so
+[ 50%] Built target 0_Nested_Loop
+[ 58%] Building CXX object CMakeFiles/NestedLoopExecutable.dir/NestedLoop.cpp.o
+[ 66%] Linking CXX executable NestedLoopExecutable
+[ 66%] Built target NestedLoopExecutable
+[ 75%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 83%] Linking CXX static library ../../../lib/libgmock.a
+[ 83%] Built target gmock
+[ 91%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[100%] Linking CXX static library ../../../lib/libgmock_main.a
+[100%] Built target gmock_main

@@ -33,7 +33,7 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
     const std::vector<TitleRelation> &buildRelation = titleRelation;
 
     std::unordered_multimap<uint32_t, size_t> hashTable;
-    hashTable.reserve(buildRelation.size());
+    hashTable.reserve(buildRelation.size() * 1.5);
 
     for (size_t i = 0; i < buildRelation.size(); ++i) {
         const auto& buildTuple = buildRelation[i];

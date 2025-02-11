@@ -63,41 +63,104 @@
 // }
 
 
+// template<typename RelationType>
+// std::vector<std::vector<RelationType> > getPartitions(const std::vector<RelationType> &relation, int numThreads) {
+//     size_t chunkSize = relation.size() / numThreads;
+//
+//     std::vector<std::vector<std::vector<RelationType> > > localResults(
+//         numThreads, std::vector<std::vector<RelationType> >(8));
+//
+// #pragma omp parallel num_threads(numThreads)
+//     {
+//         int threadId = omp_get_thread_num();
+//         size_t startIdx = threadId * chunkSize;
+//         size_t endIdx = (threadId == numThreads - 1) ? relation.size() : startIdx + chunkSize;
+//
+//         std::vector<std::vector<RelationType> > &localIndices = localResults[threadId];
+//
+//         for (size_t i = startIdx; i < endIdx; ++i) {
+//             uint32_t id = RelationTraits<RelationType>::getId(relation[i]);
+//             const uint8_t lsb = getLSB(id);
+//             localIndices[lsb].push_back(relation[i]);
+//         }
+//     }
+//
+//     std::vector<std::vector<RelationType> > partitions(8);
+//
+//     for (int i = 0; i < 8; ++i) {
+//         size_t totalSize = 0;
+//         for (int t = 0; t < numThreads; ++t) {
+//             totalSize += localResults[t][i].size();
+//         }
+//
+//         // partitions[i].reserve(totalSize);
+//         for (int t = 0; t < numThreads; ++t) {
+//             partitions[i].insert(partitions[i].end(),
+//                                  localResults[t][i].begin(),
+//                                  localResults[t][i].end());
+//         }
+//     }
+//
+//     return partitions;
+// }
+
 template<typename RelationType>
 std::vector<std::vector<RelationType> > getPartitions(const std::vector<RelationType> &relation, int numThreads) {
-    size_t chunkSize = relation.size() / numThreads;
+    // size_t chunkSize = relation.size() / numThreads;
+    // size_t chunkSize = static_cast<size_t>(std::ceil(static_cast<double>(relation.size()) / numThreads));
+    std::vector<std::vector<int> > localBuckets(numThreads, std::vector<int>(8, 0));
 
-    std::vector<std::vector<std::vector<RelationType> > > localResults(
-        numThreads, std::vector<std::vector<RelationType> >(8));
+    // Count occurrences per thread
+#pragma omp parallel num_threads(numThreads)
+    {
+        int threadId = omp_get_thread_num();
+        size_t chunkSize = (relation.size() + numThreads - 1) / numThreads;
+        size_t startIdx = threadId * chunkSize;
+        // size_t endIdx = (threadId == numThreads - 1) ? relation.size() : startIdx + chunkSize;
+        size_t endIdx = std::min(startIdx + chunkSize, relation.size());
+
+        for (size_t i = startIdx; i < endIdx; ++i) {
+            uint32_t id = RelationTraits<RelationType>::getId(relation[i]);
+            uint8_t lsb = getLSB(id);
+            ++localBuckets[threadId][lsb];
+        }
+    }
+
+    std::vector<int> globalSizes(numThreads, 0);
+    std::vector<std::vector<int> > prefixSum(numThreads, std::vector<int>(8, 0));
+
+#pragma omp parallel for
+    for (int i = 0; i < numThreads; ++i) {
+        int sum = 0;
+        for (int t = 0; t < numThreads; ++t) {
+            prefixSum[t][i] = sum;
+            sum += localBuckets[t][i];
+        }
+        globalSizes[i] = sum;
+    }
+
+
+    // Resizing partitions
+    std::vector<std::vector<RelationType> > partitions(numThreads);
+#pragma omp parallel for
+    for (int i = 0; i < 8; ++i) {
+        partitions[i].resize(globalSizes[i]);
+    }
 
 #pragma omp parallel num_threads(numThreads)
     {
         int threadId = omp_get_thread_num();
+        size_t chunkSize = (relation.size() + numThreads - 1) / numThreads;
+
         size_t startIdx = threadId * chunkSize;
-        size_t endIdx = (threadId == numThreads - 1) ? relation.size() : startIdx + chunkSize;
+        // size_t endIdx = (threadId == numThreads - 1) ? relation.size() : startIdx + chunkSize;
+        size_t endIdx = std::min(startIdx + chunkSize, relation.size());
 
-        std::vector<std::vector<RelationType> > &localIndices = localResults[threadId];
-
+        std::vector<int> localOffsets = prefixSum[threadId];
         for (size_t i = startIdx; i < endIdx; ++i) {
             uint32_t id = RelationTraits<RelationType>::getId(relation[i]);
-            const uint8_t lsb = getLSB(id);
-            localIndices[lsb].push_back(relation[i]);
-        }
-    }
-
-    std::vector<std::vector<RelationType> > partitions(8);
-
-    for (int i = 0; i < 8; ++i) {
-        size_t totalSize = 0;
-        for (int t = 0; t < numThreads; ++t) {
-            totalSize += localResults[t][i].size();
-        }
-
-        partitions[i].reserve(totalSize);
-        for (int t = 0; t < numThreads; ++t) {
-            partitions[i].insert(partitions[i].end(),
-                                 localResults[t][i].begin(),
-                                 localResults[t][i].end());
+            uint8_t lsb = getLSB(id);
+            partitions[lsb][localOffsets[lsb]++] = relation[i];
         }
     }
 
@@ -109,20 +172,19 @@ std::vector<ResultRelation> nopJoin(const std::vector<TitleRelation> &buildRelat
     HashMapForPartitionExercise<uint32_t> hashMap;
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(std::max(buildRelation.size(), probeRelation.size()));
+    // resultTuples.reserve(buildRelation.size() + probeRelation.size());
     hashMap.reserve(buildRelation.size());
 
     for (size_t i = 0; i < buildRelation.size(); ++i) {
-        const auto &buildTuple = buildRelation[i];
-        uint32_t id = buildRelation[i].titleId;
-        hashMap.emplace(id, i);
+        hashMap.emplace(buildRelation[i].titleId, i);
     }
 
     for (const auto &probeTuple: probeRelation) {
-        auto [begin, end] = hashMap.equal_range(probeTuple.movieId);
-        for (auto it = begin; it != end; ++it) {
+        __builtin_prefetch(&probeTuple.movieId, 0, 1);
+        auto it = hashMap.find(probeTuple.movieId);
+        if (it != hashMap.end()) {
             const size_t buildIndex = it->second;
-            const auto &buildTuple = buildRelation[buildIndex];
-            resultTuples.emplace_back(createResultTuple(probeTuple, buildTuple));
+            resultTuples.emplace_back(createResultTuple(probeTuple, buildRelation[buildIndex]));
         }
     }
 
@@ -133,61 +195,51 @@ std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRel
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
     // templates verwenden
     // virutal function call nachschauen
+    // TODO: Implement your join
+    // The benchmark will test it against skewed key distributions
     omp_set_num_threads(numThreads);
 
     auto buildPartitions = getPartitions(titleRelation, numThreads);
     auto probePartitions = getPartitions(castRelation, numThreads);
 
-    std::vector<std::vector<ResultRelation> > partitionResults(8);
+    std::vector<std::vector<ResultRelation> > partitionResults(numThreads);
 
-    for (size_t i = 0; i < 8; ++i) {
-        partitionResults[i].reserve(std::max(buildPartitions[i].size(), probePartitions[i].size()));
-    }
-
-#pragma omp parallel for num_threads(numThreads)
-    for (int i = 0; i < 8; ++i) {
-        partitionResults[i] = nopJoin(buildPartitions[i], probePartitions[i]);
-    }
-
-    size_t totalSize = 0;
-    for (const auto &partition: partitionResults) {
-        totalSize += partition.size();
-    }
-
-    std::vector<ResultRelation> resultTuples;
-    resultTuples.reserve(totalSize);
-
-    for (const auto &partition: partitionResults) {
-        resultTuples.insert(resultTuples.end(), partition.begin(), partition.end());
-    }
-
-
-    // HashMapForPartitionExercise<int> hashMap[8];
-    // for (int i = 0; i < titleRelation.size(); ++i) {
-    //     uint8_t lsb = getLSB(titleRelation[i].titleId);
-    //     hashMap[lsb].emplace(titleRelation[i].titleId, i);
+    // #pragma omp parallel for num_threads(numThreads) schedule(guided, 1)
+    // for (int i = 0; i < 8; ++i) {
+    //     partitionResults[i] = nopJoin(buildPartitions[i], probePartitions[i]);
     // }
 
-    // std::vector<ResultRelation> resultTuples;
-    // resultTuples.reserve(castRelation.size());
-    // for (int i = 0; i < castRelation.size(); ++i) {
-    //     resultTuples.emplace_back(createResultTuple(castRelation[i], titleRelation[castRelation[i].movieId - 1]));
-    // }
+#pragma omp parallel
+    {
+#pragma omp single
+        {
+            for (int i = 0; i < numThreads; ++i) {
+#pragma omp task
+                partitionResults[i] = nopJoin(buildPartitions[i], probePartitions[i]);
+            }
+        }
+    }
+
+    std::vector<size_t> offsets(partitionResults.size() + 1, 0);
+
+#pragma omp parallel for
+    for (size_t i = 0; i < partitionResults.size(); ++i) {
+        offsets[i + 1] = partitionResults[i].size();
+    }
+
+    for (size_t i = 1; i < offsets.size(); ++i) {
+        offsets[i] += offsets[i - 1];
+    }
+
+    std::vector<ResultRelation> resultTuples(offsets.back());
+
+#pragma omp parallel for
+    for (size_t i = 0; i < partitionResults.size(); ++i) {
+        std::move(partitionResults[i].begin(), partitionResults[i].end(), resultTuples.begin() + offsets[i]);
+    }
 
     return resultTuples;
 }
-
-// std::vector<ResultRelation> performJoin(const std::vector<CastRelation>& castRelation, const std::vector<TitleRelation>& titleRelation, int numThreads) {
-//     omp_set_num_threads(numThreads);
-//     std::vector<ResultRelation> resultTuples;
-//     resultTuples.reserve(castRelation.size() * numThreads / 2);
-//
-//     // TODO: Implement your join
-//     // The benchmark will test it against skewed key distributions
-//
-//     return resultTuples;
-// }
-
 
 //==--------------------------------------------------------------------==//
 //==------------------------- CORRECTNESS TEST --------------------------==//

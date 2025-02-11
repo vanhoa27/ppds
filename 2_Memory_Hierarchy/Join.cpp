@@ -46,164 +46,155 @@ inline int findCastLastHit(const std::vector<CastRelation> &castRelation, int ta
     return -1;
 }
 
-std::vector<size_t> getPartitionIndices(size_t totalSize, size_t numSections) {
-    std::vector<size_t> partitionIndices;
-    partitionIndices.reserve(numSections);
-
-    double partitionSize = static_cast<double>(totalSize) / (numSections);
-
-    for (int i = 0; i < (numSections - 1); i++) {
-        int end = std::round((i + 1) * partitionSize) - 1;
-        if (end >= totalSize) end = totalSize;
-        partitionIndices.push_back(end);
-    }
-
-    return partitionIndices;
-}
-
-
-std::vector<size_t> getPartitionBorders(size_t totalSize, size_t numSections) {
-    std::vector<size_t> partitionIndices;
-    partitionIndices.reserve(numSections + 2);
-    partitionIndices.push_back(0);
-
-    double partitionSize = static_cast<double>(totalSize) / (numSections);
-
-    for (int i = 0; i < (numSections - 1); i++) {
-        int end = std::round((i + 1) * partitionSize) - 1;
-        partitionIndices.push_back(end + 1);
-    }
-
-    partitionIndices.push_back(totalSize + 1);
-
-    return partitionIndices;
-}
-
-std::vector<size_t> getCastCorrespondingIndices(const std::vector<CastRelation> &castRelation,
-                                                 const std::vector<TitleRelation> &titleRelation,
-                                                 std::vector<size_t> indices, int cutOffSize) {
-    std::vector<size_t> partitionIndices;
-    partitionIndices.reserve(indices.size());
-    partitionIndices.push_back(0);
-
-    for (int i = 1; i < indices.size() - 1; ++i) {
-        partitionIndices.push_back(findCastLastHit(castRelation, titleRelation[indices[i] - 1].titleId) + 1);
-    }
-    partitionIndices.push_back(cutOffSize + 1);
-
-    return partitionIndices;
-}
-
-// std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
-//                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
-//     omp_set_num_threads(numThreads);
-//     // TODO: Implement Sort-Merge Join
-//     // IMPORTANT: You can assume for this benchmark that the join keys are sorted in both relations.
-//     std::vector<ResultRelation> resultTuples;
-//     resultTuples.reserve(std::max(castRelation.size(), titleRelation.size()));
+// std::vector<size_t> getPartitionIndices(size_t totalSize, size_t numSections) {
+//     std::vector<size_t> partitionIndices;
+//     partitionIndices.reserve(numSections);
 //
-//     size_t castMaxMovieId = castRelation.back().movieId;
-//     size_t titleCutOffIndex = findTitleLastHit(titleRelation, castMaxMovieId);
-//     titleCutOffIndex = (titleCutOffIndex == - 1) ? titleRelation.size() - 1 : titleCutOffIndex;
+//     double partitionSize = static_cast<double>(totalSize) / (numSections);
 //
-//     size_t titleMaxTitleId = titleRelation.back().titleId;
-//     size_t castCutOffIndex = findCastLastHit(castRelation, titleMaxTitleId);
-//     castCutOffIndex = (castCutOffIndex == - 1) ? castRelation.size() - 1 : castCutOffIndex;
-//
-//     size_t castIndex = 0;
-//     size_t titleIndex = 0;
-//
-//     auto indices = getPartitionIndices(titleCutOffIndex, 8);
-//     for (auto &i: indices) {
-//         std::cout << "PartitionIndex: " << i << " ";
-//         std::cout << "titleId: "<< titleRelation[i].titleId << " ";
-//         std::cout << "castIndex: " << findCastLastHit(castRelation, titleRelation[i].titleId) << " ";
-//         std::cout << "\n";
+//     for (int i = 0; i < (numSections - 1); i++) {
+//         int end = std::round((i + 1) * partitionSize) - 1;
+//         if (end >= totalSize) end = totalSize;
+//         partitionIndices.push_back(end);
 //     }
 //
+//     return partitionIndices;
+// }
+
+
+// std::vector<size_t> getPartitionBorders(size_t totalSize, size_t numSections) {
+//     std::vector<size_t> partitionIndices;
+//     partitionIndices.reserve(numSections + 2);
+//     partitionIndices.push_back(0);
 //
-//     while (castIndex < castCutOffIndex + 1 && titleIndex < titleCutOffIndex + 1) {
-//         if (castRelation[castIndex].movieId < titleRelation[titleIndex].titleId) {
-//             ++castIndex;
-//         } else if (castRelation[castIndex].movieId > titleRelation[titleIndex].titleId) {
-//             ++titleIndex;
-//         } else {
-//             size_t tempTitleIndex = titleIndex;
-//             while (titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
-//                 resultTuples.emplace_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
-//                 ++tempTitleIndex;
-//             }
-//             ++castIndex;
-//         }
+//     double partitionSize = static_cast<double>(totalSize) / (numSections);
+//
+//     for (int i = 0; i < (numSections - 1); i++) {
+//         int end = std::round((i + 1) * partitionSize) - 1;
+//         partitionIndices.push_back(end + 1);
 //     }
 //
-//     return resultTuples;
+//     partitionIndices.push_back(totalSize + 1);
+//
+//     return partitionIndices;
+// }
+
+// std::vector<size_t> getCastCorrespondingIndices(const std::vector<CastRelation> &castRelation,
+//                                                  const std::vector<TitleRelation> &titleRelation,
+//                                                  std::vector<size_t> indices, int cutOffSize) {
+//     std::vector<size_t> partitionIndices;
+//     partitionIndices.reserve(indices.size());
+//     partitionIndices.push_back(0);
+//
+//     for (int i = 1; i < indices.size() - 1; ++i) {
+//         partitionIndices.push_back(findCastLastHit(castRelation, titleRelation[indices[i] - 1].titleId) + 1);
+//     }
+//     partitionIndices.push_back(cutOffSize + 1);
+//
+//     return partitionIndices;
 // }
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
     omp_set_num_threads(numThreads);
-
+    // TODO: Implement Sort-Merge Join
+    // IMPORTANT: You can assume for this benchmark that the join keys are sorted in both relations.
     std::vector<ResultRelation> resultTuples;
     resultTuples.reserve(std::max(castRelation.size(), titleRelation.size()));
 
     size_t castMaxMovieId = castRelation.back().movieId;
     size_t titleCutOffIndex = findTitleLastHit(titleRelation, castMaxMovieId);
-    titleCutOffIndex = (titleCutOffIndex == -1) ? titleRelation.size() - 1 : titleCutOffIndex;
+    titleCutOffIndex = (titleCutOffIndex == - 1) ? titleRelation.size() - 1 : titleCutOffIndex;
 
     size_t titleMaxTitleId = titleRelation.back().titleId;
     size_t castCutOffIndex = findCastLastHit(castRelation, titleMaxTitleId);
-    castCutOffIndex = (castCutOffIndex == -1) ? castRelation.size() - 1 : castCutOffIndex;
+    castCutOffIndex = (castCutOffIndex == - 1) ? castRelation.size() - 1 : castCutOffIndex;
 
     size_t castIndex = 0;
     size_t titleIndex = 0;
 
-    std::vector<size_t> titlePartitionIndices = getPartitionBorders(titleCutOffIndex, 8);
-    std::vector<size_t> castPartitionIndices = getCastCorrespondingIndices(castRelation,titleRelation, titlePartitionIndices, castCutOffIndex);
-
-    std::vector<std::vector<ResultRelation> > threadResults(numThreads);
-
-#pragma omp parallel
-    {
-        int threadId = omp_get_thread_num();
-        std::vector<ResultRelation> &localResults = threadResults[threadId];
-
-#pragma omp for nowait
-        for (size_t i = 0; i < titlePartitionIndices.size() - 1; ++i) {
-            size_t titleStart = titlePartitionIndices[i];
-            size_t titleEnd = titlePartitionIndices[i + 1];
-
-            size_t castStart = castPartitionIndices[i];
-            size_t castEnd = castPartitionIndices[i + 1];
-
-            size_t castIndex = castStart;
-            size_t titleIndex = titleStart;
-
-            while (castIndex < castEnd && titleIndex < titleEnd) {
-                if (castRelation[castIndex].movieId < titleRelation[titleIndex].titleId) {
-                    ++castIndex;
-                } else if (castRelation[castIndex].movieId > titleRelation[titleIndex].titleId) {
-                    ++titleIndex;
-                } else {
-                    size_t tempTitleIndex = titleIndex;
-                    while (tempTitleIndex < titleEnd && titleRelation[tempTitleIndex].titleId == castRelation[castIndex]
-                           .movieId) {
-                        localResults.push_back(
-                            createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
-                        ++tempTitleIndex;
-                    }
-                    ++castIndex;
-                }
+    while (castIndex < castCutOffIndex + 1 && titleIndex < titleCutOffIndex + 1) {
+        if (castRelation[castIndex].movieId < titleRelation[titleIndex].titleId) {
+            ++castIndex;
+        } else if (castRelation[castIndex].movieId > titleRelation[titleIndex].titleId) {
+            ++titleIndex;
+        } else {
+            size_t tempTitleIndex = titleIndex;
+            while (titleRelation[tempTitleIndex].titleId == castRelation[castIndex].movieId) {
+                resultTuples.emplace_back(createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
+                ++tempTitleIndex;
             }
+            ++castIndex;
         }
-    }
-
-    for (auto &localResults: threadResults) {
-        resultTuples.insert(resultTuples.end(), localResults.begin(), localResults.end());
     }
 
     return resultTuples;
 }
+
+// std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &castRelation,
+//                                         const std::vector<TitleRelation> &titleRelation, int numThreads) {
+//     omp_set_num_threads(numThreads);
+//
+//     std::vector<ResultRelation> resultTuples;
+//     resultTuples.reserve(std::max(castRelation.size(), titleRelation.size()));
+//
+//     size_t castMaxMovieId = castRelation.back().movieId;
+//     size_t titleCutOffIndex = findTitleLastHit(titleRelation, castMaxMovieId);
+//     titleCutOffIndex = (titleCutOffIndex == -1) ? titleRelation.size() - 1 : titleCutOffIndex;
+//
+//     size_t titleMaxTitleId = titleRelation.back().titleId;
+//     size_t castCutOffIndex = findCastLastHit(castRelation, titleMaxTitleId);
+//     castCutOffIndex = (castCutOffIndex == -1) ? castRelation.size() - 1 : castCutOffIndex;
+//
+//     size_t castIndex = 0;
+//     size_t titleIndex = 0;
+//
+//     std::vector<size_t> titlePartitionIndices = getPartitionBorders(titleCutOffIndex, 8);
+//     std::vector<size_t> castPartitionIndices = getCastCorrespondingIndices(castRelation,titleRelation, titlePartitionIndices, castCutOffIndex);
+//
+//     std::vector<std::vector<ResultRelation> > threadResults(numThreads);
+//
+// #pragma omp parallel
+//     {
+//         int threadId = omp_get_thread_num();
+//         std::vector<ResultRelation> &localResults = threadResults[threadId];
+//
+// #pragma omp for nowait
+//         for (size_t i = 0; i < titlePartitionIndices.size() - 1; ++i) {
+//             size_t titleStart = titlePartitionIndices[i];
+//             size_t titleEnd = titlePartitionIndices[i + 1];
+//
+//             size_t castStart = castPartitionIndices[i];
+//             size_t castEnd = castPartitionIndices[i + 1];
+//
+//             size_t castIndex = castStart;
+//             size_t titleIndex = titleStart;
+//
+//             while (castIndex < castEnd && titleIndex < titleEnd) {
+//                 if (castRelation[castIndex].movieId < titleRelation[titleIndex].titleId) {
+//                     ++castIndex;
+//                 } else if (castRelation[castIndex].movieId > titleRelation[titleIndex].titleId) {
+//                     ++titleIndex;
+//                 } else {
+//                     size_t tempTitleIndex = titleIndex;
+//                     while (tempTitleIndex < titleEnd && titleRelation[tempTitleIndex].titleId == castRelation[castIndex]
+//                            .movieId) {
+//                         localResults.push_back(
+//                             createResultTuple(castRelation[castIndex], titleRelation[tempTitleIndex]));
+//                         ++tempTitleIndex;
+//                     }
+//                     ++castIndex;
+//                 }
+//             }
+//         }
+//     }
+//
+//     for (auto &localResults: threadResults) {
+//         resultTuples.insert(resultTuples.end(), localResults.begin(), localResults.end());
+//     }
+//
+//     return resultTuples;
+// }
 
 
 //==--------------------------------------------------------------------==//

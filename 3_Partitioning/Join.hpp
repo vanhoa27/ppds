@@ -72,6 +72,7 @@ private:
     template<typename RelationType>
     void computeHistogram(const std::vector<RelationType> &relation, std::vector<size_t> &histogram) {
         size_t chunkSize = relation.size() / numThreads;
+
         std::vector localResults(numThreads, std::vector<int>(8, 0));
 
 #pragma omp parallel num_threads(numThreads)
@@ -114,14 +115,14 @@ private:
 
 struct HashFunctionForPartitionExercise {
     std::size_t operator()(const uint64_t &key) const {
-        std::hash<uint64_t> hasher;
+        std::hash<uint32_t> hasher;
         return hasher(key);
-        //        return 42;
     }
 };
 
 template<typename T>
 using HashMapForPartitionExercise = std::unordered_multimap<uint64_t, T, HashFunctionForPartitionExercise>;
+
 
 std::vector<ResultRelation> performJoin(const std::vector<CastRelation> &leftRelation,
                                         const std::vector<TitleRelation> &rightRelation, int numThreads);

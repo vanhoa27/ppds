@@ -1,0 +1,398 @@
+---------------------------------------------------------
+Processing 2_Memory_Hierarchy
+---------------------------------------------------------
+Compile 2_Memory_Hierarchy
+Project name is: PPDS_2_Memory_Hierarchy
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- OpenMP found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/2_Memory_Hierarchy/build
+[  8%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[ 16%] Linking CXX shared library ../../../lib/libgtest.so
+[ 16%] Built target gtest
+[ 25%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 33%] Linking CXX shared library ../../../lib/libgtest_main.so
+[ 33%] Built target gtest_main
+[ 41%] Building CXX object CMakeFiles/2_Memory_Hierarchy.dir/Join.cpp.o
+[ 50%] Linking CXX shared library lib2_Memory_Hierarchy.so
+[ 50%] Built target 2_Memory_Hierarchy
+[ 58%] Building CXX object CMakeFiles/2_Memory_Hierarchy_EXECUTABLE.dir/Join.cpp.o
+[ 66%] Linking CXX executable 2_Memory_Hierarchy_EXECUTABLE
+[ 66%] Built target 2_Memory_Hierarchy_EXECUTABLE
+[ 75%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 83%] Linking CXX shared library ../../../lib/libgmock.so
+[ 83%] Built target gmock
+[ 91%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[100%] Linking CXX shared library ../../../lib/libgmock_main.so
+[100%] Built target gmock_main
+
+Run pre-benchmark tests 2_Memory_Hierarchy
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/2_Memory_Hierarchy/build_tests
+Running main() from /home/ppdsgrp3/job_100/ppds/2_Memory_Hierarchy/build_tests/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = JoinTest*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from JoinTest
+[ RUN      ] JoinTest.Memory_Hierarchy_JoiningTwoTuples
+Loaded enough tuples. Returning now...
+Loaded 1 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 1 tuples from file.
+[       OK ] JoinTest.Memory_Hierarchy_JoiningTwoTuples (0 ms)
+[ RUN      ] JoinTest.Memory_Hierarchy_simpleJoin
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Memory_Hierarchy_simpleJoin (33 ms)
+[ RUN      ] JoinTest.Memory_Hierarchy_noMatches
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Memory_Hierarchy_noMatches (29 ms)
+[ RUN      ] JoinTest.Memory_Hierarchy_onlyMatches
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Memory_Hierarchy_onlyMatches (49 ms)
+[----------] 4 tests from JoinTest (112 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (112 ms total)
+[  PASSED  ] 4 tests.
+Test run success.
+
+Run benchmark 2_Memory_Hierarchy
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/2_Memory_Hierarchy/build_benchmark
+Loaded 65129 tuples from file.
+Loaded 169126 tuples from file.
+Running iteration: 1/3 with datasets: (/home/slurm//data/title_info_uniform_20MiB.csv, /home/slurm//data/cast_info_uniform_20MiB_sorted.csv)
+Running iteration: 2/3 with datasets: (/home/slurm//data/title_info_uniform_20MiB.csv, /home/slurm//data/cast_info_uniform_20MiB_sorted.csv)
+Running iteration: 3/3 with datasets: (/home/slurm//data/title_info_uniform_20MiB.csv, /home/slurm//data/cast_info_uniform_20MiB_sorted.csv)
+
+Total execution time: 0.000557s and throughput: 420625187.414373 tup/s 
+
+Loaded 162823 tuples from file.
+Loaded 422813 tuples from file.
+Running iteration: 1/3 with datasets: (/home/slurm//data/title_info_uniform_50MiB.csv, /home/slurm//data/cast_info_uniform_50MiB_sorted.csv)
+Running iteration: 2/3 with datasets: (/home/slurm//data/title_info_uniform_50MiB.csv, /home/slurm//data/cast_info_uniform_50MiB_sorted.csv)
+Running iteration: 3/3 with datasets: (/home/slurm//data/title_info_uniform_50MiB.csv, /home/slurm//data/cast_info_uniform_50MiB_sorted.csv)
+
+Total execution time: 0.001363s and throughput: 429639277.297645 tup/s 
+
+Loaded 325645 tuples from file.
+Loaded 845626 tuples from file.
+Running iteration: 1/3 with datasets: (/home/slurm//data/title_info_uniform_100MiB.csv, /home/slurm//data/cast_info_uniform_100MiB_sorted.csv)
+Running iteration: 2/3 with datasets: (/home/slurm//data/title_info_uniform_100MiB.csv, /home/slurm//data/cast_info_uniform_100MiB_sorted.csv)
+Running iteration: 3/3 with datasets: (/home/slurm//data/title_info_uniform_100MiB.csv, /home/slurm//data/cast_info_uniform_100MiB_sorted.csv)
+
+Total execution time: 0.002719s and throughput: 430806141.999250 tup/s 
+
+Loaded 651290 tuples from file.
+Loaded 1691252 tuples from file.
+Running iteration: 1/3 with datasets: (/home/slurm//data/title_info_uniform_200MiB.csv, /home/slurm//data/cast_info_uniform_200MiB_sorted.csv)
+Running iteration: 2/3 with datasets: (/home/slurm//data/title_info_uniform_200MiB.csv, /home/slurm//data/cast_info_uniform_200MiB_sorted.csv)
+Running iteration: 3/3 with datasets: (/home/slurm//data/title_info_uniform_200MiB.csv, /home/slurm//data/cast_info_uniform_200MiB_sorted.csv)
+
+Total execution time: 0.005416s and throughput: 432529447.172345 tup/s 
+
+Loaded 1628224 tuples from file.
+Loaded 4228130 tuples from file.
+Running iteration: 1/3 with datasets: (/home/slurm//data/title_info_uniform_500MiB.csv, /home/slurm//data/cast_info_uniform_500MiB_sorted.csv)
+Running iteration: 2/3 with datasets: (/home/slurm//data/title_info_uniform_500MiB.csv, /home/slurm//data/cast_info_uniform_500MiB_sorted.csv)
+Running iteration: 3/3 with datasets: (/home/slurm//data/title_info_uniform_500MiB.csv, /home/slurm//data/cast_info_uniform_500MiB_sorted.csv)
+
+Total execution time: 0.013525s and throughput: 433007533.427095 tup/s 
+
+Loaded 3334602 tuples from file.
+Loaded 8659209 tuples from file.
+Running iteration: 1/3 with datasets: (/home/slurm//data/title_info_uniform_1000MiB.csv, /home/slurm//data/cast_info_uniform_1000MiB_sorted.csv)
+Running iteration: 2/3 with datasets: (/home/slurm//data/title_info_uniform_1000MiB.csv, /home/slurm//data/cast_info_uniform_1000MiB_sorted.csv)
+Running iteration: 3/3 with datasets: (/home/slurm//data/title_info_uniform_1000MiB.csv, /home/slurm//data/cast_info_uniform_1000MiB_sorted.csv)
+
+Total execution time: 0.027242s and throughput: 440261333.026166 tup/s 
+
+
+Generate Plot 2_Memory_Hierarchy
+Your new result: 72057866.6667 is not better than your previous best result: : 115749970000.0000
+
+==---------------------------==
+==------- LEADERBOARD -------==
+==---------------------------==
+ Current leaderboard for 2_Memory_Hierarchy benchmark.
+ Here, x is the number of threads and y is the throughput:
+-----------------------------------------------------------------------------------------------
+Ranking | Group | 1:(x, y)  | 2:(x, y)  | 3:(x, y)  | 4:(x, y)  | 5:(x, y)  | 6:(x, y)  | Score
+-----------------------------------------------------------------------------------------------
+    1   | ppdsgrp2 | (20, 80712600000.00) | (50, 410301000000.00) | (100, 962425000000.00) | (200, 1791850000000.00) | (500, 4869470000000.00) | (1000, 9268790000000.00) | 571268060000.00
+    2   | ppdsgrp3 | (20, 29317300000.00) | (50, 94604900000.00) | (100, 184066000000.00) | (200, 375207000000.00) | (500, 948295000000.00) | (1000, 1902970000000.00) | 115749970000.00
+    3   | ppdsgrp1 | (20, 1892530000.00) | (50, 7092340000.00) | (100, 14033300000.00) | (200, 28586800000.00) | (500, 72783500000.00) | (1000, 151867000000.00) | 9058767833.33
+
+
+---------------------------------------------------------
+Processing 1_Parallelization
+---------------------------------------------------------
+Compile 1_Parallelization
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- OpenMP found
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/1_Parallelization/build
+[  8%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[ 16%] Linking CXX shared library ../../../lib/libgtest.so
+[ 16%] Built target gtest
+[ 25%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 33%] Linking CXX shared library ../../../lib/libgtest_main.so
+[ 33%] Built target gtest_main
+[ 41%] Building CXX object CMakeFiles/1_Parallelization.dir/Join.cpp.o
+[ 50%] Linking CXX shared library lib1_Parallelization.so
+[ 50%] Built target 1_Parallelization
+[ 58%] Building CXX object CMakeFiles/ParallelismExecutable.dir/Join.cpp.o
+[ 66%] Linking CXX executable ParallelismExecutable
+[ 66%] Built target ParallelismExecutable
+[ 75%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 83%] Linking CXX shared library ../../../lib/libgmock.so
+[ 83%] Built target gmock
+[ 91%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[100%] Linking CXX shared library ../../../lib/libgmock_main.so
+[100%] Built target gmock_main
+
+Run pre-benchmark tests 1_Parallelization
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/1_Parallelization/build_tests
+Running main() from /home/ppdsgrp3/job_100/ppds/1_Parallelization/build_tests/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = JoinTest*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from JoinTest
+[ RUN      ] JoinTest.Parallelization_JoiningTwoTuples
+Loaded enough tuples. Returning now...
+Loaded 1 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 1 tuples from file.
+[       OK ] JoinTest.Parallelization_JoiningTwoTuples (0 ms)
+[ RUN      ] JoinTest.Parallelization_simpleJoin
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Parallelization_simpleJoin (37 ms)
+[ RUN      ] JoinTest.Parallelization_noMatches
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Parallelization_noMatches (32 ms)
+[ RUN      ] JoinTest.Parallelization_onlyMatches
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+Loaded enough tuples. Returning now...
+Loaded 20000 tuples from file.
+[       OK ] JoinTest.Parallelization_onlyMatches (45 ms)
+[----------] 4 tests from JoinTest (114 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (114 ms total)
+[  PASSED  ] 4 tests.
+Test run success.
+
+Run benchmark 1_Parallelization
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/1_Parallelization/build_benchmark
+Loaded 8659209 tuples from file.
+Loaded 3334602 tuples from file.
+Running iteration: 1/3 with param: 1
+Running iteration: 2/3 with param: 1
+Running iteration: 3/3 with param: 1
+
+Total execution time: 0.001459s and throughput: 13712166.988598 tup/s 
+
+Running iteration: 1/3 with param: 2
+Running iteration: 2/3 with param: 2
+Running iteration: 3/3 with param: 2
+
+Total execution time: 0.001443s and throughput: 13864677.054699 tup/s 
+
+Running iteration: 1/3 with param: 4
+Running iteration: 2/3 with param: 4
+Running iteration: 3/3 with param: 4
+
+Total execution time: 0.001445s and throughput: 13841168.895941 tup/s 
+
+Running iteration: 1/3 with param: 8
+Running iteration: 2/3 with param: 8
+Running iteration: 3/3 with param: 8
+
+Total execution time: 0.001435s and throughput: 13934825.427991 tup/s 
+
+
+Generate Plot 1_Parallelization
+Your new result: 3469950.0000 is not better than your previous best result: : 91475050.0000
+
+==---------------------------==
+==------- LEADERBOARD -------==
+==---------------------------==
+ Current leaderboard for 1_Parallelization benchmark.
+ Here, x is the number of threads and y is the throughput:
+-----------------------------------------------------------------------
+Ranking | Group | 1:(x, y)  | 2:(x, y)  | 3:(x, y)  | 4:(x, y)  | Score
+-----------------------------------------------------------------------
+    1   | ppdsgrp3 | (1, 378015000.00) | (2, 365103000.00) | (4, 362433000.00) | (8, 365183000.00) | 91475050.00
+    2   | ppdsgrp1 | (1, 81740000.00) | (2, 82681900.00) | (4, 82876500.00) | (8, 82714800.00) | 20660770.00
+    3   | ppdsgrp2 | (1, 26114700.00) | (2, 35655600.00) | (4, 44470600.00) | (8, 39214400.00) | 9560977.50
+
+
+Directory 4_Strings not present or empty. Skip.
+Directory 3_Partitioning not present or empty. Skip.
+---------------------------------------------------------
+Processing 0_Nested_Loop
+---------------------------------------------------------
+Compile 0_Nested_Loop
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ppdsgrp3/job_100/ppds/0_Nested_Loop/build
+[  8%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[ 16%] Linking CXX static library ../../../lib/libgtest.a
+[ 16%] Built target gtest
+[ 25%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[ 33%] Linking CXX static library ../../../lib/libgtest_main.a
+[ 33%] Built target gtest_main
+[ 41%] Building CXX object CMakeFiles/0_Nested_Loop.dir/NestedLoop.cpp.o
+[ 50%] Linking CXX shared library lib0_Nested_Loop.so
+[ 50%] Built target 0_Nested_Loop
+[ 58%] Building CXX object CMakeFiles/NestedLoopExecutable.dir/NestedLoop.cpp.o
+[ 66%] Linking CXX executable NestedLoopExecutable
+[ 66%] Built target NestedLoopExecutable
+[ 75%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[ 83%] Linking CXX static library ../../../lib/libgmock.a
+[ 83%] Built target gmock
+[ 91%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[100%] Linking CXX static library ../../../lib/libgmock_main.a
+[100%] Built target gmock_main
